@@ -2,17 +2,14 @@
 import { useAuthStore } from '@/stores/auth';
 import type { TokenProvider, TokenPair } from '@/utils/request';
 
-function createPiniaTokenProvider(): TokenProvider {
-  const store = useAuthStore();
-  return {
-    getAccess: () => store.accessToken || null,
-    getRefresh: () => store.refreshToken || null,
-    setTokens: (pair: TokenPair) => store.setTokens(pair),
-    setAccess: (accessToken: string) => store.setAccess(accessToken),
-    clear: () => store.clearTokens()
-  };
-}
-const piniaTokenProvider = createPiniaTokenProvider()
-export {
-  piniaTokenProvider
+export const piniaTokenProvider: TokenProvider = {
+  getAccess: () => getStore().accessToken || null,
+  getRefresh: () => getStore().refreshToken || null,
+  setTokens: (pair: TokenPair) => getStore().setTokens(pair),
+  setAccess: (accessToken: string) => getStore().setAccess(accessToken),
+  clear: () => getStore().clearTokens()
+};
+
+function getStore() {
+  return useAuthStore();
 }
