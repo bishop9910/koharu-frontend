@@ -1,10 +1,10 @@
 <!-- App.vue -->
 <script setup lang="ts">
-import TestLayout from './components/layout/TestLayout.vue';
+import UITestLayout from './components/layout/UITestLayout.vue';
 </script>
 
 <template>
-  <TestLayout/>
+  <UITestLayout/>
 </template>
 
 <style scoped></style>

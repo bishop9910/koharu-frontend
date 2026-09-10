@@ -12,7 +12,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+} from '@/components/ui/alert-dialog';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const btnAlert = ()=>{
   alert("button test")
@@ -47,5 +49,10 @@ const handleDialogAction = ()=>{
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    <Avatar>
+      <AvatarImage src="https://github.com/shadcn.png" />
+      <AvatarFallback>CN</AvatarFallback>
+    </Avatar>
   </div>
 </template>
