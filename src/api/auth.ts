@@ -1,25 +1,15 @@
-import type { Role } from "@/enums/role";
 import http from "@/utils/request";
-
-type LoginRequest = {
-  username: string,
-  password: string
-}
-
-type UserLoginInfo = {
-  id: string,
-  username: string,
-  role: Role
-}
+import type { LoginRequest, LoginResponse, PublicKeyResponse } from "./types";
 
 export function login(loginRequest: LoginRequest) {
-  return http.post<{
-    accessToken: string,
-    refreshToken: string,
-    expiresIn: number,
-    user: UserLoginInfo
-  }>(
+  return http.post<LoginResponse>(
     "/auth/login",
     loginRequest,
+  )
+}
+
+export function getPublicKey() {
+  return http.get<PublicKeyResponse>(
+    "/auth/public-key"
   )
 }

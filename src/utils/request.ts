@@ -74,7 +74,7 @@ export class RequestError extends Error {
   }
 }
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 const REFRESH_URL = '/auth/refresh';
 const AUTH_FAIL_STATUSES = [401];
 
