@@ -135,3 +135,6 @@ export type UpdateUserRoleRequest = Pick<User, "role">;
 
 export type UpdateUserRoleResponse = User
 
+/* ============================================================
+ * avatar
+ * ============================================================ */
