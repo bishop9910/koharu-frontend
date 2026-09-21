@@ -93,6 +93,7 @@ export interface PublicKeyResponse {
 
 export interface NewUserRequest {
   username: string;
+  email: string;
   password: string;
   role: Role;
   bio: string;

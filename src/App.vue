@@ -5,6 +5,8 @@ import UITestLayout from './components/layout/UITestLayout.vue';
 import LoginView from './view/LoginView.vue';
 import { Toaster } from '@/components/ui/sonner';
 import 'vue-sonner/style.css';
+import UserView from './view/UserView.vue';
+import RegisteView from './view/RegisteView.vue';
 
 </script>
 
@@ -12,7 +14,8 @@ import 'vue-sonner/style.css';
  
    
 <Toaster />
-<LoginView/>
+
+<LoginView></LoginView>
 
   
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-  import { login } from '@/api/auth';
-  import type { LoginRequest } from '@/api/types';
+  import { getPublicKey, login } from '@/api/auth';
+  import type { LoginRequest, LoginResponse } from '@/api/types';
+  import type { TokenPair } from '@/stores/auth';
   import { Button } from '@/components/ui/button'
   import {
         Card,
@@ -13,53 +14,93 @@
   } from '@/components/ui/card'
   import { Input } from '@/components/ui/input'
   import { Label } from '@/components/ui/label'
-  import { handleError, ref, type Ref } from 'vue';
+  import { handleError, onMounted, ref, type Ref } from 'vue';
   import { toast } from '@/utils/toast'
-const accountRule = /^[\u4e00-\u9fa5a-zA-Z0-9_]{2,16}$/;
-const passwordRule = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{6,33}$/;
-let loading = ref(false);
-let form:Ref<LoginRequest> = ref({
-    username: '',
-    password: '',
-    encrypted: false
-});
+  import { useAuthStore } from '@/stores/auth';
+  import router from '@/router';
+  import forge from 'node-forge';
 
-function accountValid (accountVal:string){
-    return accountRule.test(accountVal);
-}
+  const accountRule = /^[\u4e00-\u9fa5a-zA-Z0-9_]{2,16}$/;
+  const passwordRule = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{6,33}$/;
+  let loading = ref(false);
+  let form:Ref<LoginRequest> = ref({
+      username: '',
+      password: '',
+      encrypted: false
+  });
+  let formEncrypt:LoginRequest = {
+      username: '',
+      password: '',
+      encrypted: true
+  };
 
-function passwordValid (passwordVal:string){
-    return passwordRule.test(passwordVal);
-}
 
-function handleSubmit(){
-    if(loading.value){return}
+  let authStore = useAuthStore();
 
-    loading.value = true;
-
-    if(!accountValid(form.value.username)){
-        loading.value = false;
-        toast.warning('账号2到16位，中文、字母、数字、下划线');
-        return;
-    }
-
-    if(!passwordValid(form.value.password)){
-        loading.value = false;
-        toast.warning('6到18位，必须同时包含字母和数字');
-        return;
-    }
-
-    login(form.value).then((res)=>{
-        toast.success('登录成功啦')
-        console.log('@@@@@@@',res)
+  const encryptPassword = (password:string)=>{
+    getPublicKey().then((res)=>{
+      let publicKey = forge.pki.publicKeyFromPem(res.publicKey);
+      const encrypted = publicKey.encrypt(password, 'RSA-OAEP', {
+        md: forge.md.sha256.create()
+      });
+      formEncrypt.password = forge.util.encode64(encrypted);
+      formEncrypt.username = form.value.username;
     }).catch((error)=>{
-        toast.error('用户名或密码错误');
-    }).finally(()=>{
-        loading.value = false;
+      toast.error(error);
+      loading.value = false;
     })
+  }
+  function accountValid (accountVal:string){
+      return accountRule.test(accountVal);
+  }
+
+  function passwordValid (passwordVal:string){
+      return passwordRule.test(passwordVal);
+  }
+  
+
+  async function handleSubmit(){
+      if(loading.value){return}
+
+      loading.value = true;
+
+      if(!accountValid(form.value.username)){
+          loading.value = false;
+          toast.warning('账号2到16位，中文、字母、数字、下划线');
+          return;
+      }
+
+      if(!passwordValid(form.value.password)){
+          loading.value = false;
+          toast.warning('6到18位，必须同时包含字母和数字');
+          return;
+      }
+
+      encryptPassword(form.value.password);
+      console.log(formEncrypt)
+
+      login(formEncrypt).then((res:LoginResponse)=>{
+          toast.success('登录成功啦');
+          console.log(formEncrypt)
+          let pair:TokenPair = {
+            accessToken: res.accessToken,
+            refreshToken: res.refreshToken
+          }
+          authStore.setTokens(pair);
 
 
-}
+      }).catch((error)=>{
+          toast.error('用户名或密码错误');
+      }).finally(()=>{
+          loading.value = false;
+      })
+
+  }
+  onMounted(()=>{
+        if(authStore.isLogin){
+          toast.success('欢迎回来');
+        }
+      })
 
 
 
@@ -101,9 +142,12 @@ function handleSubmit(){
         <Button class="w-full" @click = 'handleSubmit'>
           登录
         </Button>
-        <Button variant="outline" class="w-full">
-          如果你还没有账号，那就去注册一个吧
-        </Button>
+          <router-link
+            to="/registe"
+            class="block w-full text-center py-2.5 mt-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+          >
+            如果你还没有账号，那就去注册一个吧
+          </router-link>
       </CardFooter>
     </Card>
   </div>
