@@ -11,5 +11,5 @@
 
 <template>
   <Toaster />
-  <LoginView />
+  <router-view></router-view>
 </template>

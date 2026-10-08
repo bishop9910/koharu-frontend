@@ -5,7 +5,7 @@ const router = createRouter({
   routes: [
     {
       name: '主页',
-      path: '/',
+      path: '/home',
       component: () => import('@/view/HomeView.vue')
     },
     {
@@ -22,6 +22,10 @@ const router = createRouter({
       name: '注册',
       path: '/registe',
       component: () => import('@/view/RegisteView.vue')
+    },
+    {
+      redirect: '/login',
+      path: '/'
     }
 
 

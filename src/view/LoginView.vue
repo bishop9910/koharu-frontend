@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { getPublicKey, login } from '@/api/auth';
-  import type { LoginRequest, LoginResponse } from '@/api/types';
+  import type { LoginRequest, LoginResponse, UserBaseInfo } from '@/api/types';
   import type { TokenPair } from '@/stores/auth';
   import { Button } from '@/components/ui/button'
   import {
@@ -12,19 +12,21 @@
         CardHeader,
         CardTitle,
   } from '@/components/ui/card'
+  import { useRouter } from 'vue-router';
   import { Input } from '@/components/ui/input'
   import { Label } from '@/components/ui/label'
   import { handleError, onMounted, ref, type Ref } from 'vue';
   import { toast } from '@/utils/toast'
   import { useAuthStore } from '@/stores/auth';
-  import router from '@/router';
   import forge from 'node-forge';
-import type { ExecException } from 'child_process';
+  import type { ExecException } from 'child_process';
+import { Role } from '@/enums/role';
+import { useUserStore } from '@/stores/user';
 
   const accountRule = /^[\u4e00-\u9fa5a-zA-Z0-9_]{2,16}$/;
   const passwordRule = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9!@#$%^&*()_\-+=.,?/~`|\\{}\[\]:;"'<>\s]{6,33}$/;
   const loading = ref(false);
-
+  const router = useRouter();
   const username: Ref<string> = ref("");
   const password: Ref<string> = ref("");
 
@@ -34,8 +36,14 @@ import type { ExecException } from 'child_process';
     encrypted: true
   });
 
+  const userInfo: Ref<UserBaseInfo> = ref({
+    id: '',
+    username: '',
+    role : Role.USER
+  })
 
   const authStore = useAuthStore();
+  const userStore = useUserStore();
 
   const encryptPassword = async (form: Ref<LoginRequest>, username: string, password: string) => {
     try {
@@ -78,31 +86,32 @@ import type { ExecException } from 'child_process';
     }
 
     await encryptPassword(formEncrypt, username.value, password.value);
-    console.log(formEncrypt)
 
     login(formEncrypt.value).then((res: LoginResponse) => {
       toast.success('登录成功啦');
-      console.log(formEncrypt);
-      let pair: TokenPair = {
+      const pair: TokenPair = {
         accessToken: res.accessToken,
         refreshToken: res.refreshToken
       };
+      userInfo.value = {
+        id: res.user.id,
+        username: res.user.username,
+        role: res.user.role
+      }
+      userStore.setUserInfo(userInfo.value);
       authStore.setTokens(pair);
+      router.push('/home');
     }).catch((error) => {
       toast.error(`[Error]: ${error}`);
     }).finally(() => {
       loading.value = false;
     })
   }
-
-  const logout = () => {
-    authStore.clearTokens();
-    location.href = "";
-  }
   
   onMounted(() => {
     if(authStore.isLogin){
       toast.success('欢迎回来');
+      router.push('/home');
     }
   })
 </script>
@@ -141,9 +150,6 @@ import type { ExecException } from 'child_process';
       <CardFooter class="flex flex-col gap-2">
         <Button class="w-full" @click='handleSubmit'>
           登录
-        </Button>
-        <Button class="w-full" @click='logout'>
-          登出
         </Button>
           <router-link
             to="/registe"

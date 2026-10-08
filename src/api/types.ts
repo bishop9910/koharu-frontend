@@ -25,7 +25,7 @@ export interface Paginated<T> {
 }
 
 /** 后端返回的审计时间戳 */
-interface Timestamps {
+export interface Timestamps {
   createdAt: string;
   updatedAt: string;
 }
@@ -51,7 +51,10 @@ export interface UserBaseInfo {
 
 /** 完整用户（列表 / 详情接口返回） */
 export interface User extends UserBaseInfo, Timestamps {
+  id: string;
+  usename: string;
   email: string;
+  role: Role;
   emailVerified: boolean;
   bio: string | null;
   avatar: UserAvatar | null;

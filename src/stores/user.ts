@@ -8,20 +8,19 @@ import type {
   LoginRequest,
   LoginResponse,
   User,
-  UserBaseInfo
+  UserBaseInfo,
+  Timestamps
 } from '@/api/types';
 
 const USER_KEY = 'user:info';
 
 interface UserState {
   userInfo: UserBaseInfo | null;
-  loading: boolean;
 }
 
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    userInfo: cache.local.getJSON<UserBaseInfo>(USER_KEY),
-    loading: false
+    userInfo: cache.local.getJSON<UserBaseInfo>(USER_KEY)
   }),
 
   getters: {
@@ -37,22 +36,9 @@ export const useUserStore = defineStore('user', {
       cache.local.setJSON<UserBaseInfo>(USER_KEY, userInfo);
     },
 
-    async login(loginRequest: LoginRequest): Promise<LoginResponse> {
-      const res = await loginApi(loginRequest);
-      useAuthStore().setTokens(res);
-      this.setUserInfo(res.user);
-      return res;
-    },
-
-    async fetchSelfInfo(): Promise<User> {
-      this.loading = true;
-      try {
-        const user = await getSelfInfo();
-        this.setUserInfo(user);
-        return user;
-      } finally {
-        this.loading = false;
-      }
+    clearUser() {
+      this.userInfo = null;
+      cache.local.remove(USER_KEY);
     },
 
     logout() {
@@ -60,9 +46,5 @@ export const useUserStore = defineStore('user', {
       this.clearUser();
     },
 
-    clearUser() {
-      this.userInfo = null;
-      cache.local.remove(USER_KEY);
-    }
   }
 });
