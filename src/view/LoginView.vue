@@ -2,26 +2,14 @@
   import { getPublicKey, login } from '@/api/auth';
   import type { LoginRequest, LoginResponse, UserBaseInfo } from '@/api/types';
   import type { TokenPair } from '@/stores/auth';
-  import { Button } from '@/components/ui/button'
-  import {
-        Card,
-        CardAction,
-        CardContent,
-        CardDescription,
-        CardFooter,
-        CardHeader,
-        CardTitle,
-  } from '@/components/ui/card'
   import { useRouter } from 'vue-router';
-  import { Input } from '@/components/ui/input'
-  import { Label } from '@/components/ui/label'
   import { handleError, onMounted, ref, type Ref } from 'vue';
-  import { toast } from '@/utils/toast'
   import { useAuthStore } from '@/stores/auth';
   import forge from 'node-forge';
   import type { ExecException } from 'child_process';
-import { Role } from '@/enums/role';
-import { useUserStore } from '@/stores/user';
+  import { Role } from '@/enums/role';
+  import { useUserStore } from '@/stores/user';
+  import { useMessage } from 'naive-ui'
 
   const accountRule = /^[\u4e00-\u9fa5a-zA-Z0-9_]{2,16}$/;
   const passwordRule = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9!@#$%^&*()_\-+=.,?/~`|\\{}\[\]:;"'<>\s]{6,33}$/;
@@ -29,6 +17,7 @@ import { useUserStore } from '@/stores/user';
   const router = useRouter();
   const username: Ref<string> = ref("");
   const password: Ref<string> = ref("");
+  const message = useMessage();
 
   const formEncrypt: Ref<LoginRequest> = ref({
     username: '',
@@ -55,7 +44,7 @@ import { useUserStore } from '@/stores/user';
       form.value.username = username;
       form.value.password = forge.util.encode64(encrypted);
     } catch(error: any){
-      toast.error(`[Error]: ${error}`);
+      message.error(`[Error]: ${error}`);
       loading.value = false;
     }
   }
@@ -75,20 +64,20 @@ import { useUserStore } from '@/stores/user';
 
     if(!accountValid(username.value)){
       loading.value = false;
-      toast.warning('账号2到16位，中文、字母、数字、下划线');
+      message.warning('账号2到16位，中文、字母、数字、下划线');
       return;
     }
 
     if(!passwordValid(password.value)){
       loading.value = false;
-      toast.warning('6到18位，必须同时包含字母和数字');
+      message.warning('6到18位，必须同时包含字母和数字');
       return;
     }
 
     await encryptPassword(formEncrypt, username.value, password.value);
 
     login(formEncrypt.value).then((res: LoginResponse) => {
-      toast.success('登录成功啦');
+      message.success('登录成功啦');
       const pair: TokenPair = {
         accessToken: res.accessToken,
         refreshToken: res.refreshToken
@@ -102,64 +91,85 @@ import { useUserStore } from '@/stores/user';
       authStore.setTokens(pair);
       router.push('/home');
     }).catch((error) => {
-      toast.error(`[Error]: ${error}`);
+      message.error(`[Error]: ${error}`);
     }).finally(() => {
       loading.value = false;
     })
   }
+
+  function handleRegister(){
+    router.push("/registe");
+  }
   
   onMounted(() => {
     if(authStore.isLogin){
-      toast.success('欢迎回来');
+      message.success('欢迎回来');
       router.push('/home');
     }
   })
 </script>
 
 <template>
-  <div class="flex justify-center items-start min-h-screen pt-32">
-    <Card class="w-full max-w-sm ">
-      <CardHeader>
-        <CardTitle>登录你的账号</CardTitle>
-        <CardDescription>
-          你可以使用你的账号登录
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form>
-          <div class="grid w-full items-center gap-4">
-            <div class="flex flex-col space-y-1.5">
-            <Label for="username">账号</Label>
-            <Input id="username" type="text" autocomplete="off" placeholder="请输入账号" v-model="username"/>
-          </div>
-          <div class="flex flex-col space-y-1.5">
-            <div class="flex items-center">
-              <Label for="password">密码</Label>
-              <a
-                href="#"
-                class="ml-auto inline-block text-sm underline"
-              >
-                Forgot your password?
-              </a>
-            </div>
-            <Input id="password" type="password" autocomplete="new-password" placeholder="请输入密码" v-model="password"/>
-          </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter class="flex flex-col gap-2">
-        <Button class="w-full" @click='handleSubmit'>
-          登录
-        </Button>
-          <router-link
-            to="/registe"
-            class="block w-full text-center py-2.5 mt-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+  <div class="min-h-screen w-full flex justify-center items-start pt-[15vh] bg-gray-50">
+    <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl ring-1 ring-black/5  ">
+        <div class="mb-8 text-center">
+          <h1 class="text-2xl font-bold text-gray-800">欢迎登录</h1>
+          <p class="mt-2 text-sm text-gray-500">请输入您的账号信息以继续</p>
+        </div>
+        <n-form
+          label-placement="left"
+          label-width="0"
+          require-mark-placement="left"
+        >
+          <n-form-item path="username">
+            <n-input
+              v-model:value="username"
+              placeholder="请输入账号 / 手机号"
+              size="large"
+              class="w-full"
+            >
+              <template #prefix>
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" />
+                </svg>
+              </template>
+            </n-input>
+          </n-form-item>
+          <n-form-item path="password">
+            <n-input
+              v-model:value="password"
+              type="password"
+              show-password-on="click"
+              placeholder="请输入密码"
+              size="large"
+              class="w-full"
+              @keyup.enter="handleSubmit"
+            >
+              <template #prefix>
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </template>
+            </n-input>
+          </n-form-item>
+          <n-button
+            type="primary"
+            block
+            strong
+            size="large"
+            :loading="loading"
+            class="mt-4"
+            @click="handleSubmit"
           >
-            如果你还没有账号，那就去注册一个吧
-          </router-link>
-      </CardFooter>
-    </Card>
-  </div>
+            登 录
+          </n-button>
+        </n-form>
+        <div class="mt-8 text-center text-sm text-gray-500">
+          还没有账号？
+          <n-button text type="primary" @click="handleRegister">立即注册</n-button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <style>

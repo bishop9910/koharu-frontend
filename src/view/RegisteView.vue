@@ -2,27 +2,16 @@
   import { getPublicKey } from '@/api/auth';
   import type { LoginRequest, NewUserRequest, NewUserResponse, UserBaseInfo } from '@/api/types';
   import { newUser } from '@/api/users';
-  import { Button } from '@/components/ui/button';
-  import {
-      Card,
-      CardAction,
-      CardContent,  
-      CardDescription,
-      CardFooter,
-      CardHeader,
-      CardTitle,
-  } from '@/components/ui/card';
-  import { Input } from '@/components/ui/input';
-  import { Label } from '@/components/ui/label';
   import { Role } from '@/enums/role';
   import { ref, type Ref } from 'vue';
-  import { toast } from 'vue-sonner';
   import forge from 'node-forge';
   import { useRouter } from 'vue-router';
+  import { useMessage } from 'naive-ui';
   
 
   const router = useRouter();
   const loading = ref(false);
+  const message = useMessage();
   const formEncrypt:Ref<NewUserRequest> = ref({
     username: '',
     email: '',
@@ -63,29 +52,29 @@
       form.value.email = email;
       form.value.bio = bio;
     } catch(error: any){
-      toast.error(`[Error]: ${error}`);
+      message.error(`[Error]: ${error}`);
       loading.value = false;
     }
   }
   
-  async function handRegiste(){
+  async function handleRegiste(){
     if(loading.value)return;
 
     loading.value = true;
 
     if(!accountValid(username.value)){
-      toast.warning('账号2到16位，中文、字母、数字、下划线');
+      message.warning('账号2到16位，中文、字母、数字、下划线');
       loading.value = false;
       return;
     }
     if(!passwordValid(password.value)){
-      toast.warning('6到33位，必须同时包含字母和数字');
+      message.warning('6到33位，必须同时包含字母和数字');
       loading.value = false;
       return;
     }
 
     if(!emailValid(email.value)){
-      toast.warning('请输入正确的邮箱');
+      message.warning('请输入正确的邮箱');
       loading.value = false;
       return;
     }
@@ -93,10 +82,10 @@
     await encryptPassword(formEncrypt, username.value, password.value, email.value, bio.value);
 
     newUser(formEncrypt.value).then((res: NewUserResponse) => {
-      toast.success('注册成功，请去登录');
+      message.success('注册成功，请去登录');
       router.push('/login')
     }).catch((error) => {
-      toast.error(`[Error]: ${error}`);
+      message.error(`[Error]: ${error}`);
     }).finally(() => {
       loading.value = false;
     })
@@ -105,43 +94,94 @@
 </script>
 
 <template>
-  <div class="flex justify-center items-start min-h-screen pt-15">
-    <Card class="w-full max-w-sm mt-20">
-      <CardHeader>
-        <CardTitle>注册你的账号</CardTitle>
-        <CardDescription>
-          你可以直接写给账号名和密码注册
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form>
-          <div class="grid w-full items-center gap-4">
-            <div class="flex flex-col space-y-1.5">
-              <Label for="username">账号</Label>
-              <Input id="username" type="text" autocomplete="off" placeholder="请输入账号" v-model="username" />
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <div class="flex items-center">
-                <Label for="password">密码</Label>
-              </div>
-              <Input id="password" type="password" autocomplete="new-password" placeholder="请输入密码" v-model="password"/>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label for="email">邮箱</Label>
-              <Input id="email" type="text" autocomplete="off" placeholder="请输入邮箱" v-model="email" />
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label for="bio">自我介绍（选填）</Label>
-              <Input id="bio" type="text" autocomplete="off" placeholder="请输入" v-model="bio" />
-            </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter class="flex flex-col gap-2">
-        <Button class="w-full" @click = 'handRegiste'>
-        注册
-        </Button>
-      </CardFooter>
-    </Card>
-  </div>
+  <div class="min-h-screen w-full flex justify-center items-start pt-[15vh] bg-gray-50">
+    <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl ring-1 ring-black/5">
+        <div class="mb-8 text-center">
+          <h1 class="text-2xl font-bold text-gray-800">创建账号</h1>
+          <p class="mt-2 text-sm text-gray-500">填写以下信息完成注册</p>
+        </div>
+
+        <n-form
+          label-placement="left"
+          label-width="0"
+          require-mark-placement="left"
+        >
+    
+          <n-form-item path="username">
+            <n-input
+              v-model:value="username"
+              placeholder="请输入用户名"
+              size="large"
+              class="w-full"
+            >
+              <template #prefix>
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" />
+                </svg>
+              </template>
+            </n-input>
+          </n-form-item>
+
+          <n-form-item path="phone">
+            <n-input
+              v-model:value="email"
+              placeholder="请输入邮箱"
+              size="large"
+              class="w-full"
+            >
+              <template #prefix>
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 10.5h3m-3 3h3m-6-3h.008v.008H10.5v-.008z" />
+                </svg>
+              </template>
+            </n-input>
+          </n-form-item>
+
+          <n-form-item path="password">
+            <n-input
+              v-model:value="password"
+              type="password"
+              show-password-on="click"
+              placeholder="请输入密码 "
+              size="large"
+              class="w-full"
+            >
+              <template #prefix>
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </template>
+            </n-input>
+          </n-form-item>
+
+          <n-form-item path="username">
+            <n-input
+              v-model:value="bio"
+              placeholder="请输入自我介绍"
+              size="large"
+              class="w-full"
+              @keyup.enter="handleRegiste"
+            >
+              <template #prefix>
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" />
+                </svg>
+              </template>
+            </n-input>
+          </n-form-item>
+
+          <n-button
+            type="primary"
+            block
+            strong
+            size="large"
+            :loading="loading"
+            class="mt-2"
+            @click="handleRegiste"
+          >
+            立即注册
+          </n-button>
+        </n-form>
+      </div>
+    </div>
 </template>
