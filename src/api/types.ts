@@ -46,6 +46,7 @@ export type UserAvatarRef = Pick<UserAvatar, "path">
 export interface UserBaseInfo {
   id: string;
   username: string;
+  email: string;
   role: Role;
 }
 
