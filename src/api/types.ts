@@ -1,4 +1,6 @@
 import type { Role } from '@/enums/role';
+import { blob } from 'stream/consumers';
+import { effectScope } from 'vue';
 
 /* ============================================================
  * 通用
@@ -27,7 +29,7 @@ export interface Paginated<T> {
 /** 后端返回的审计时间戳 */
 export interface Timestamps {
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 /* ============================================================
@@ -46,6 +48,7 @@ export type UserAvatarRef = Pick<UserAvatar, "path">
 export interface UserBaseInfo {
   id: string;
   username: string;
+  email: string;
   role: Role;
 }
 
@@ -68,6 +71,60 @@ export interface UserPublicInfo extends UserBaseInfo {
 export type UserRef = Pick<User, 'id' | 'username' | 'avatar'>;
 
 export type EditableUserFields = Pick<User, 'username' | 'email' | 'bio'>;
+
+export interface image extends Timestamps {
+  id: string;
+  filename: string;
+  path?: string;
+  thumbnailPath: string;
+  mimeType: string;
+  size: number;
+  width: number;
+  height: number;
+  userId?: string;
+  md5?: string;
+  status?: string;
+  rejectReason: string | null;
+  reviewedBy: string | null;
+  editCount?: number;
+  uploaderIp?: string;
+  thumbnailUrl?: string
+}
+export interface apporoveingImage {
+  id: string,
+  filename: string,
+  thumbnailPath: string,
+  mimeType: string,
+  size: number,
+  width: number,
+  height: number,
+  status: string,
+  rejectReason: null,
+  createdAt: string,
+  archived: boolean
+}
+
+export interface tag {
+  id: string;
+  name: string;
+  createAt: string
+}
+
+export interface album extends Timestamps {
+  id: string,
+  title: string,
+  description: string,
+  visibility: string,
+  locked: boolean,
+  ownerId: string,
+  owner: {
+    id: string,
+    username: string
+  },
+  tags: tag[],
+  images: image[],
+  imageCount?: number
+}
 
 /* ============================================================
  * Auth
@@ -137,5 +194,145 @@ export type DeleteUserResponse = MessageResponse;
 
 export type UpdateUserRoleRequest = Pick<User, "role">;
 
-export type UpdateUserRoleResponse = User
+export type UpdateUserRoleResponse = User;
+
+/* ============================================================
+ * image
+ * ============================================================ */
+
+export interface uploadImageRequest {
+  file: File
+}
+
+export interface uploadImageReponse extends MessageResponse, image { }
+
+export interface getApprovedImageListaRequest {
+  page: number;
+  limit: number
+}
+
+export type getApprovedImageListResponse = Paginated<image>;
+
+export interface approveImageRequest {
+  status: string;
+  reason: string
+}
+
+export type approveImageResponse = image;
+
+export interface editImageRequest {
+  file: File
+}
+
+export interface editImageResponse extends MessageResponse, image { }
+
+export type getUploadImageListRequest = getApprovedImageListaRequest;
+
+export type getUploadImageListResponse = Paginated<apporoveingImage>;
+
+export type getThumbnailStreamResponse = Blob;
+
+export interface getDownLinkResponse {
+  downloadUrl: string;
+  expiresInMs: number
+}
+
+export interface downImageRequest {
+  singnature: string;
+  expires: string
+}
+
+export type downImageResponse = Blob;
+
+export type getImageDetailResponse = image;
+
+export type deleteImageResponse = MessageResponse;
+
+/* ============================================================
+ * albums
+ * ============================================================ */
+
+export interface createAlbumsRequest {
+  title: string;
+  description: string;
+  visibility: string;
+  tags: string[]
+}
+
+export type createAlbumsResponse = album;
+
+export type getAlbumsListRequest = PaginationQuery;
+
+export type getAlbumsListResponse = Paginated<album>;
+
+export interface searchAlbumsRequest extends PaginationQuery {
+  q: string;
+  tags: tag[]
+}
+
+export type searchAlbumsResponse = Paginated<album>;
+
+export type getAlubumDetailResponse = album;
+
+export interface editAlumRequest {
+  title: string;
+  description: string;
+  visibility: string;
+  tags: string[]
+}
+
+export type editAlumResponse = album;
+
+export type deleteAlbumResponse = MessageResponse;
+
+export type unlockAlbumResponse = album;
+
+export interface archiveImagesRequest {
+  imageIds: string[]
+}
+
+export type archiveImagesResponse = album;
+
+export type removeImageRequest = archiveImagesRequest;
+
+export type removeImageResponse = album;
+
+/* ============================================================
+ * tags
+ * ============================================================ */
+
+export type getTagListResponse = tag[];
+
+export interface createTagRequest {
+  name: string
+}
+
+export type createTagResponse = tag;
+
+export type deleteTagResponse = MessageResponse;
+
+/* ============================================================
+ * avatars
+ * ============================================================ */
+
+export type uploadAvatarsRequest = File;
+
+export interface uploadAvatarsResponse extends MessageResponse {
+  submission: {
+    id: string;
+    status: string
+  }
+}
+
+export type deleteAvatarsResponse = MessageResponse;
+
+export interface apporoveAvatarsRequest {
+  ststus: string;
+  reason: string
+}
+
+export type getAvatarStreamResponse = Blob;
+
+
+
 

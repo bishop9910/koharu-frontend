@@ -6,7 +6,19 @@ const router = createRouter({
     {
       name: '主页',
       path: '/home',
-      component: () => import('@/view/HomeView.vue')
+      component: () => import('@/view/HomeView.vue'),
+      children: [
+        {
+          name: 'a',
+          path: 'a',
+          component: () => import('@/view/a.vue')
+        },
+        {
+          name: 'b',
+          path: 'b',
+          component: () => import('@/view/b.vue')
+        }
+      ]
     },
     {
       name: '我的',

@@ -9,7 +9,7 @@
   import type { ExecException } from 'child_process';
   import { Role } from '@/enums/role';
   import { useUserStore } from '@/stores/user';
-  import { useMessage } from 'naive-ui'
+  import { useMessage} from 'naive-ui'
 
   const accountRule = /^[\u4e00-\u9fa5a-zA-Z0-9_]{2,16}$/;
   const passwordRule = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9!@#$%^&*()_\-+=.,?/~`|\\{}\[\]:;"'<>\s]{6,33}$/;
@@ -28,6 +28,7 @@
   const userInfo: Ref<UserBaseInfo> = ref({
     id: '',
     username: '',
+    email: '',
     role : Role.USER
   })
 
@@ -85,6 +86,7 @@
       userInfo.value = {
         id: res.user.id,
         username: res.user.username,
+        email: res.user.email,
         role: res.user.role
       }
       userStore.setUserInfo(userInfo.value);
