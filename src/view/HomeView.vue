@@ -1,13 +1,21 @@
 <script setup lang="ts">
-  import { h } from 'vue';
+  import { h, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import { useUserStore } from '@/stores/user';
+  import { uploadImage } from '@/api/image';
+  import type { UploadCustomRequestOptions } from 'naive-ui/es/upload';
+  import { useAuthStore } from '@/stores/auth';
+  import { useMessage } from 'naive-ui';
 
+  const authStore = useAuthStore();
   const useStore = useUserStore();
   const router = useRouter();
+  const message = useMessage();
   const menuOptions = [
   { label: '首页', key: 'a' },
-  { label: '设置', key: 'b' }
+  { label: '设置', key: 'b' },
+  { label: 'sb', key: 'c' }
+
   ]
 
   function handleSelect1(){
@@ -19,10 +27,27 @@
     router.push('/login');
   }
 
-  function handleUpdate(key:any){
-    console.log(key);
+  function handleUpdate(key:string){
     router.push(`/home/${key}`);
   }
+
+  function handleUpload(option:UploadCustomRequestOptions){
+    const {file, onFinish} = option;
+    const formdata = new FormData();
+    formdata.append('file', file.file!);
+    uploadImage(formdata).then((res)=>{
+      console.log(res);
+    }).catch((err)=>{
+      console.log(err);
+    })
+  }
+
+  onMounted(()=>{
+    if(!authStore.isLogin){
+      message.success('请去登录');
+      router.push('/login');
+    }
+  })
 </script>
 
 <template>
@@ -66,10 +91,11 @@
       <n-layout-sider
         bordered
         collapse-mode="width"
-        :width="240"
+        :width="200"
         :collapsed-width="64"
         show-trigger
-        class="h-full"
+        class="h-full "
+        content-class="bg-gray-50"
       >
       <n-menu  mode="vertical" :options="menuOptions" @update:value = 'handleUpdate'/>
       </n-layout-sider>
@@ -80,10 +106,17 @@
           content-class="p-6 overflow-y-auto"
         >
           <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">全部文件</h2>
-            <div class="space-x-2">
-              <button class="px-4 py-2 border rounded hover:bg-gray-100">本地上传</button>
-              <button class="px-4 py-2 border rounded hover:bg-gray-100">新建文件夹</button>
+            <h2 class="text-2xl font-bold whitespace-nowrap">全部文件</h2>
+            <div class="flex flex-row items-center gap-2 ">
+              <n-upload
+                :custom-request="handleUpload"
+                accept="image/*"
+                class="w-auto inline-flex"
+                :show-file-list="false"
+                >
+                <button class="px-4 py-2 border rounded hover:bg-gray-100 whitespace-nowrap">上传图片</button>
+              </n-upload>
+              <button class="px-4 py-2 border rounded hover:bg-gray-100 whitespace-nowrap">新建图集</button>
             </div>
           </div>
           <router-view></router-view>

@@ -7,6 +7,7 @@ const router = createRouter({
       name: '主页',
       path: '/home',
       component: () => import('@/view/HomeView.vue'),
+      redirect: '/home/a',
       children: [
         {
           name: 'a',
@@ -17,6 +18,11 @@ const router = createRouter({
           name: 'b',
           path: 'b',
           component: () => import('@/view/b.vue')
+        },
+        {
+          name: 'c',
+          path: 'c',
+          component: () => import('@/view/c.vue')
         }
       ]
     },

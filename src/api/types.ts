@@ -200,9 +200,7 @@ export type UpdateUserRoleResponse = User;
  * image
  * ============================================================ */
 
-export interface uploadImageRequest {
-  file: File
-}
+export type uploadImageRequest = FormData;
 
 export interface uploadImageReponse extends MessageResponse, image { }
 

@@ -21,7 +21,7 @@ export function uploadImage(uploadImageRequest: uploadImageRequest) {
   return http.post<uploadImageReponse>('/images', uploadImageRequest);
 }
 
-export function getApprovedImageLista(getApprovedImageListaRequest: getApprovedImageListaRequest) {
+export function getApprovedImageList(getApprovedImageListaRequest: getApprovedImageListaRequest) {
   return http.get<getApprovedImageListResponse>('/images', {
     params: getApprovedImageListaRequest
   });
