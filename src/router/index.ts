@@ -29,7 +29,25 @@ const router = createRouter({
     {
       name: '我的',
       path: '/profile',
-      component: () => import('@/view/UserView.vue')
+      component: () => import('@/view/UserView.vue'),
+      redirect: '/profile/au',
+      children: [
+        {
+          name: 'au',
+          path: 'au',
+          component: () => import('@/view/au.vue')
+        },
+        {
+          name: 'bu',
+          path: 'bu',
+          component: () => import('@/view/bu.vue')
+        },
+        {
+          name: 'cu',
+          path: 'cu',
+          component: () => import('@/view/cu.vue')
+        }
+      ]
     },
     {
       name: '登录',

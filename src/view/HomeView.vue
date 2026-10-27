@@ -12,8 +12,8 @@
   const router = useRouter();
   const message = useMessage();
   const menuOptions = [
-  { label: '首页', key: 'a' },
-  { label: '设置', key: 'b' },
+  { label: '首页', key: 'b' },
+  { label: '设置', key: 'a' },
   { label: 'sb', key: 'c' }
 
   ]
@@ -94,7 +94,7 @@
         :width="200"
         :collapsed-width="64"
         show-trigger
-        class="h-full "
+        class="h-full"
         content-class="bg-gray-50"
       >
       <n-menu  mode="vertical" :options="menuOptions" @update:value = 'handleUpdate'/>

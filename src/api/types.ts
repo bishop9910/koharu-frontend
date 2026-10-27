@@ -38,6 +38,7 @@ export interface Timestamps {
 export interface UserAvatar extends Timestamps {
   id: string;
   path: string;
+  userId: string
 }
 
 export type UserAvatarRef = Pick<UserAvatar, "path">
@@ -51,14 +52,11 @@ export interface UserBaseInfo {
 }
 
 /** 完整用户（列表 / 详情接口返回） */
-export interface User extends UserBaseInfo, Timestamps {
-  id: string;
-  usename: string;
-  email: string;
-  role: Role;
+export interface User extends UserBaseInfo {
   emailVerified: boolean;
   bio: string | null;
   avatar: UserAvatar | null;
+  createAt: string
 }
 
 export interface UserPublicInfo extends UserBaseInfo {
@@ -73,17 +71,14 @@ export type EditableUserFields = Pick<User, 'username' | 'email' | 'bio'>;
 export interface image extends Timestamps {
   id: string;
   filename: string;
-  path?: string;
   thumbnailPath: string;
   mimeType: string;
   size: number;
   width: number;
   height: number;
   userId?: string;
-  md5?: string;
   status?: string;
   rejectReason: string | null;
-  reviewedBy: string | null;
   editCount?: number;
   uploaderIp?: string;
   thumbnailUrl?: string
@@ -96,10 +91,13 @@ export interface apporoveingImage {
   size: number,
   width: number,
   height: number,
+  userId: string,
+  username?: string,
   status: string,
   rejectReason: null,
   createdAt: string,
-  archived: boolean
+  thumbnailUrl?: string,
+  archived?: boolean
 }
 
 export interface tag {
@@ -153,7 +151,6 @@ export interface NewUserRequest {
   username: string;
   email: string;
   password: string;
-  role: Role;
   bio: string;
   encrypted: boolean;
 }
@@ -204,10 +201,11 @@ export interface uploadImageReponse extends MessageResponse, image { }
 
 export interface getApprovedImageListaRequest {
   page: number;
-  limit: number
+  limit: number;
+  status?: 'padding' | 'approved' | 'rejected'
 }
 
-export type getApprovedImageListResponse = Paginated<image>;
+export type getApprovedImageListResponse = Paginated<apporoveingImage>;
 
 export interface approveImageRequest {
   status: string;
@@ -243,6 +241,8 @@ export type downImageResponse = Blob;
 export type getImageDetailResponse = image;
 
 export type deleteImageResponse = MessageResponse;
+
+export type getApprovingImage = Paginated<image>;
 
 /* ============================================================
  * albums
