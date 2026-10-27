@@ -28,11 +28,11 @@ export function getApprovedImageList(getApprovedImageListaRequest: getApprovedIm
 }
 
 export function approveImage(id: string, approveImageRequest: approveImageRequest) {
-  return http.post<approveImageResponse>(`/images${id}/review`, approveImageRequest)
+  return http.post<approveImageResponse>(`/images/${id}/review`, approveImageRequest)
 }
 
 export function editImage(id: string, editImageRequest: editImageRequest) {
-  return http.post<editImageResponse>(`/images${id}/modify`, editImageRequest)
+  return http.post<editImageResponse>(`/images/${id}/modify`, editImageRequest)
 }
 
 export function getUploadImageList(getUploadImageListRequest: getUploadImageListRequest) {
@@ -42,21 +42,21 @@ export function getUploadImageList(getUploadImageListRequest: getUploadImageList
 }
 
 export function getThumbnailStream(id: string) {
-  return http.get<getThumbnailStreamResponse>(`/images${id}/thumbnail`)
+  return http.get<getThumbnailStreamResponse>(`/images/${id}/thumbnail`)
 }
 
 export function getDownLink(id: string) {
-  return http.get<getDownLinkResponse>(`/imaged${id}/sign`)
+  return http.get<getDownLinkResponse>(`/imaged/${id}/sign`)
 }
 
 export function downImage(id: string) {
-  return http.get<downImageResponse>(`/images${id}/download`)
+  return http.get<downImageResponse>(`/images/${id}/download`)
 }
 
 export function getImageDetail(id: string) {
-  return http.get<getImageDetailResponse>(`/images${id}`)
+  return http.get<getImageDetailResponse>(`/images/${id}`)
 }
 
 export function deleteImage(id: string) {
-  return http.delete<deleteImageResponse>(`/images${id}`)
+  return http.delete<deleteImageResponse>(`/images/${id}`)
 }
