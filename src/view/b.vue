@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { getApprovedImageList } from '@/api/image';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { getApprovedImageList, getDownLink } from '@/api/image';
+import { cloneVNode, computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useMessage} from 'naive-ui'
 import type { image } from '@/api/types';
+import feibiqiubi from '@/view/feibiqiubi.vue'
+import phoebeLoader from '@/view/phoebe-loader.vue'
 const view = ref<HTMLDivElement>();
 const view_w = ref(0);
 const view_h = ref(0);
@@ -51,6 +53,24 @@ const rows = computed(()=>{
   return Math.ceil(photos.value.length / cols.value)
 })
 
+// const renderToolbar = ({nodes}:any)=>{
+//   const originNext = nodes.next.props.onClick;
+
+//   const next = cloneVNode(nodes.next)
+//   next.props={
+//     ...next.props,
+//     onClick:(e:any)=>{
+//       console.log(activeIndex.value)
+//       if(originNext){
+//         originNext(e)
+//       }
+//     }
+//   }
+//   return[nodes.prev, next, nodes.rotateCounterclockwise, nodes.rotateClockwise, nodes.resizeToOriginalSize, nodes.zoomOut, nodes.zoomIn, nodes.download, nodes.close]
+// }
+
+const activeIndex =ref(0);
+
 const totalHeight = computed(()=>{
   if (rows.value <= 0) return 0;
   return rows.value * rowHeight - gap
@@ -85,6 +105,38 @@ function onScroll(){
     padding = false;
   })
 }
+
+function getPreviewSrc(){
+  const el = document.querySelector<HTMLImageElement>('.n-image-preview-container img.n-image-preview')
+  return el?.getAttribute('src') ?? ''
+}
+
+function getPreviewId(){
+  return getPreviewSrc().match(/\/images\/([^/?#]+)\//)?.[1] 
+}
+
+async function downLoad(){
+  const src = await getDownLink(getPreviewId()??'')
+  const link = document.createElement('a')
+  link.href = src.downloadUrl
+  link.download = 'koharu'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+
+const renderToolbar = ({nodes}:any)=>{
+  const download = cloneVNode(nodes.download)
+  download.props={
+    ...download.props,
+    onClick: ()=>{
+      downLoad()
+    }
+  }
+  return[nodes.rotateCounterclockwise, nodes.rotateClockwise, nodes.resizeToOriginalSize, nodes.zoomOut, nodes.zoomIn, download, nodes.close]
+}
+
 onMounted(()=>{
   getList();
   const el = view.value;
@@ -119,16 +171,18 @@ onBeforeUnmount(()=>{
       :style="{ height: totalHeight + 'px' }"
     ></div>
     <div
-    class="grid justify-center [will-change:transform] absolute gap-[12px]"
-    :style="{
-      transform: `translate3d(0, ${range.offset}px, 0)`,
-      gridTemplateColumns: `repeat(${cols}, ${img_w}px)`,
-      top: 0, left: 0,right: 0
-    }"
+      class="grid justify-center [will-change:transform] absolute gap-[12px]"
+      :style="{
+        transform: `translate3d(0, ${range.offset}px, 0)`,
+        gridTemplateColumns: `repeat(${cols}, ${img_w}px)`,
+        top: 0, left: 0,right: 0
+      }"
     >
       <n-image-group
+        :render-toolbar="renderToolbar"
       >
         <n-image
+          alt="加载失败"
           class="p-0.5 rounded-1g"
           v-for="item in visibleItems"
           :key="item.index"
@@ -139,7 +193,21 @@ onBeforeUnmount(()=>{
             style: 'width: 130px; height: 130px; object-fit: cover; display: block; border-radius: 6px;'
           }"
           :src="`${BASE_URL}/images/${item.index}/thumbnail`"
-        />
+        >
+          <template #placeholder>
+            <phoebe-loader :size="126" />
+          </template>
+          <template #error>
+            <n-spin
+              :rotate="false"
+              :size="126"
+            >
+              <template #icon>
+                <feibiqiubi />
+              </template>
+            </n-spin>
+          </template>
+        </n-image>
       </n-image-group>
     </div>
 

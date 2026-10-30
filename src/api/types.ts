@@ -1,4 +1,5 @@
 import type { Role } from '@/enums/role';
+import type { Status } from '@/enums/status';
 
 /* ============================================================
  * 通用
@@ -78,6 +79,7 @@ export interface image extends Timestamps {
   height: number;
   userId?: string;
   status?: string;
+  md5?: string;
   rejectReason: string | null;
   editCount?: number;
   uploaderIp?: string;
@@ -93,6 +95,7 @@ export interface apporoveingImage {
   height: number,
   userId: string,
   username?: string,
+  md5?: string;
   status: string,
   rejectReason: null,
   createdAt: string,
@@ -202,7 +205,7 @@ export interface uploadImageReponse extends MessageResponse, image { }
 export interface getApprovedImageListaRequest {
   page: number;
   limit: number;
-  status?: 'padding' | 'approved' | 'rejected'
+  status?: any
 }
 
 export type getApprovedImageListResponse = Paginated<apporoveingImage>;
@@ -214,9 +217,7 @@ export interface approveImageRequest {
 
 export type approveImageResponse = image;
 
-export interface editImageRequest {
-  file: File
-}
+export type editImageRequest = FormData;
 
 export interface editImageResponse extends MessageResponse, image { }
 
