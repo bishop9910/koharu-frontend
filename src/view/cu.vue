@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { getApprovedImageList, getUploadImageList } from '@/api/image';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { downImage, getApprovedImageList, getDownLink, getUploadImageList } from '@/api/image';
+import { cloneVNode, computed, onBeforeUnmount, onMounted, provide, ref } from 'vue';
 import { useMessage} from 'naive-ui'
 import type { image } from '@/api/types';
-import { Status } from '@/enums/status';
+import { piniaTokenProvider } from '@/utils/token-provider';
+
 const view = ref<HTMLDivElement>();
 const view_w = ref(0);
 const view_h = ref(0);
@@ -18,14 +19,11 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 const sleep = (ms:number) => new Promise(resolve => setTimeout(resolve, ms));
 let ro: ResizeObserver | null = null;
 const photos = ref<image[]>([]);
-// const photos = Array.from({ length: 10000 }, (_, i) => ({
-//   id: i,
-//   url: `https://picsum.photos/seed/${i}/240/240`,
-// }))
+
 
 let page = 1;
 const limit = 90;
-const status = Status.APPROVED
+const status = 'pending';
 async function getList(){
   try{
     while(1){
@@ -87,6 +85,41 @@ function onScroll(){
     padding = false;
   })
 }
+
+function getPreviewSrc(){
+  const el = document.querySelector<HTMLImageElement>('.n-image-preview-container img.n-image-preview')
+  return el?.getAttribute('src') ?? ''
+}
+
+function getPreviewId(){
+  return getPreviewSrc().match(/\/images\/([^/?#]+)\//)?.[1] 
+}
+
+async function downLoad() {
+    const src = await getDownLink(getPreviewId()??'')
+    const link = document.createElement('a')
+    link.href = src.downloadUrl
+    link.download = 'koharu'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+}
+const renderToolbar = ({nodes}:any) =>{
+  const download = cloneVNode(nodes.download)
+  download.props = {
+    ...download.props,
+    onClick: ()=>{
+      try{
+        downLoad()
+      }catch(err){
+        message.error(`Error${err}`)
+      }
+    }
+  }
+
+  return[nodes.rotateCounterclockwise, nodes.rotateClockwise, nodes.resizeToOriginalSize, nodes.zoomOut, nodes.zoomIn, download, nodes.close]
+}
 onMounted(()=>{
   getList();
   const el = view.value;
@@ -129,10 +162,13 @@ onBeforeUnmount(()=>{
     }"
     >
       <n-image-group
+         :render-toolbar="renderToolbar"
       >
         <n-image
+          alt="加载失败"
           class="p-0.5 rounded-1g"
           v-for="item in visibleItems"
+          
           :key="item.index"
           object-fit = 'cover'
           :width="130"
@@ -140,7 +176,7 @@ onBeforeUnmount(()=>{
           :img-props="{
             style: 'width: 130px; height: 130px; object-fit: cover; display: block; border-radius: 6px;'
           }"
-          :src="`${BASE_URL}/images/${item.index}/thumbnail`"
+          :src="`${BASE_URL}/images/${item.index}/thumbnail?access_token=${piniaTokenProvider.getAccess()}`"
         />
       </n-image-group>
     </div>

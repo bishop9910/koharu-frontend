@@ -46,7 +46,7 @@ export function getThumbnailStream(id: string) {
 }
 
 export function getDownLink(id: string) {
-  return http.get<getDownLinkResponse>(`/imaged/${id}/sign`)
+  return http.get<getDownLinkResponse>(`/images/${id}/sign`)
 }
 
 export function downImage(id: string) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { h, onMounted } from 'vue';
+  import { onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import { useUserStore } from '@/stores/user';
   import { uploadImage } from '@/api/image';
@@ -36,9 +36,9 @@
     const formdata = new FormData();
     formdata.append('file', file.file!);
     uploadImage(formdata).then((res)=>{
-      console.log(res);
+      message.success('上传成功')
     }).catch((err)=>{
-      console.log(err);
+      message.error(`Errpr${err}`)
     })
   }
 

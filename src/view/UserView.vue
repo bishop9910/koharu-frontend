@@ -14,7 +14,24 @@
   const menuOptions = [
   { label: '资料', key: 'au' },
   { label: '密码', key: 'bu' },
-  { label: '我的投稿', key: 'cu' },
+  { 
+    label: '我的投稿', 
+    key: 'cu', 
+    children: [
+      {
+        label: '已过审',
+        key: 'approved'
+      },
+      {
+        label: '待过审',
+        key: 'pending'
+      },
+      {
+        label: '未过审',
+        key: 'rejected'
+      }
+    ]
+  },
   { label: '删除账号', key: 'du' }
 
   ]

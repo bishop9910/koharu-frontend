@@ -43,10 +43,26 @@ const router = createRouter({
           component: () => import('@/view/bu.vue')
         },
         {
-          name: 'cu',
-          path: 'cu',
-          component: () => import('@/view/cu.vue')
+          name: 'du',
+          path: 'du',
+          component: () => import('@/view/du.vue')
+        },
+        {
+          name: 'approved',
+          path: 'approved',
+          component: () => import('@/view/approved.vue')
+        },
+        {
+          name: 'pending',
+          path: 'pending',
+          component: () => import('@/view/pending.vue')
+        },
+        {
+          name: 'rejected',
+          path: 'rejected',
+          component: () => import('@/view/rejected.vue')
         }
+
       ]
     },
     {
