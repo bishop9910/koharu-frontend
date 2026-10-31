@@ -7,22 +7,22 @@ const router = createRouter({
       name: '主页',
       path: '/home',
       component: () => import('@/view/HomeView.vue'),
-      redirect: '/home/a',
+      redirect: '/home/image',
       children: [
+        {
+          name: '图库',
+          path: 'image',
+          component: () => import('@/view/image.vue')
+        },
         {
           name: 'a',
           path: 'a',
           component: () => import('@/view/a.vue')
         },
         {
-          name: 'b',
-          path: 'b',
-          component: () => import('@/view/b.vue')
-        },
-        {
-          name: 'c',
-          path: 'c',
-          component: () => import('@/view/c.vue')
+          name: '图集',
+          path: 'albums',
+          component: () => import('@/view/albums.vue')
         }
       ]
     },
@@ -30,22 +30,22 @@ const router = createRouter({
       name: '我的',
       path: '/profile',
       component: () => import('@/view/UserView.vue'),
-      redirect: '/profile/au',
+      redirect: '/profile/me',
       children: [
         {
-          name: 'au',
-          path: 'au',
-          component: () => import('@/view/au.vue')
+          name: '资料',
+          path: 'me',
+          component: () => import('@/view/me.vue')
         },
         {
-          name: 'bu',
-          path: 'bu',
-          component: () => import('@/view/bu.vue')
+          name: '密码',
+          path: 'password',
+          component: () => import('@/view/password.vue')
         },
         {
-          name: 'du',
-          path: 'du',
-          component: () => import('@/view/du.vue')
+          name: '删除账号',
+          path: 'deleteUser',
+          component: () => import('@/view/deleteUser.vue')
         },
         {
           name: 'approved',
@@ -61,6 +61,21 @@ const router = createRouter({
           name: 'rejected',
           path: 'rejected',
           component: () => import('@/view/rejected.vue')
+        },
+        {
+          name: 'approvedAvators',
+          path: 'approvedAvators',
+          component: () => import('@/view/approvedAvators.vue')
+        },
+        {
+          name: 'pendingAvators',
+          path: 'pendingAvators',
+          component: () => import('@/view/pendingAvators.vue')
+        },
+        {
+          name: 'rejectedAvators',
+          path: 'rejectedAvators',
+          component: () => import('@/view/rejectedAvators.vue')
         }
 
       ]

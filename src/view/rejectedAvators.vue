@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { downImage, getApprovedImageList, getDownLink, getUploadImageList } from '@/api/image';
-import { cloneVNode, computed, onBeforeUnmount, onMounted, provide, ref } from 'vue';
-import { useMessage} from 'naive-ui'
+import { deleteImage, downImage, editImage, getApprovedImageList, getDownLink, getUploadImageList } from '@/api/image';
+import { cloneVNode, computed, h, onBeforeUnmount, onMounted, provide, ref } from 'vue';
+import { NButton, NIcon, NUpload, useMessage, type UploadCustomRequestOptions} from 'naive-ui'
 import type { image } from '@/api/types';
 import { piniaTokenProvider } from '@/utils/token-provider';
+import feibiqiubi from '@/view/feibiqiubi.vue'
+import phoebeLoader from '@/view/phoebe-loader.vue'
+import EditSvg from '@/icon/Edit.svg?raw'
+import DeleteSvg from '@/icon/Delete.svg?raw'
 
+const EditSvgThin = EditSvg.replace('stroke-width="2"', 'stroke-width="1.4"')
 const view = ref<HTMLDivElement>();
 const view_w = ref(0);
 const view_h = ref(0);
@@ -19,15 +24,15 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 const sleep = (ms:number) => new Promise(resolve => setTimeout(resolve, ms));
 let ro: ResizeObserver | null = null;
 const photos = ref<image[]>([]);
-
+const deleteLoad = ref(false)
 
 let page = 1;
 const limit = 90;
-const status = 'pending';
+const status = 'rejected';
 async function getList(){
   try{
     while(1){
-      const temp = await getUploadImageList({page, limit});
+      const temp = await getUploadImageList({page, limit,status});
       if(temp.data.length == 0)break;
       photos.value.push(...temp.data);
       page++;
@@ -67,11 +72,11 @@ const range = computed(()=>{
 })
 const visibleItems = computed(()=>{
   const {start, end} = range.value;
-  const item: { index: string; url: string }[] = [];
+  const item: { index: string; url: string; rejectReason: string }[] = [];
   for(let i = start; i < end; i++){
     const photo = photos.value[i];
     if (!photo) break;
-    item.push({ index: photo.id, url: photo.thumbnailPath})
+    item.push({ index: photo.id, url: photo.thumbnailPath, rejectReason: photo.rejectReason!})
   }
   return item;
 })
@@ -95,6 +100,29 @@ function getPreviewId(){
   return getPreviewSrc().match(/\/images\/([^/?#]+)\//)?.[1] 
 }
 
+async function handleEdit(option:UploadCustomRequestOptions){
+    const {file, onFinish, onError} = option;
+    const id = getPreviewId();
+    if(!id){
+      message.error('没有找到当前预览的图片');
+      onError();
+      return;
+    }
+    const formdata = new FormData();
+    formdata.append('file', file.file!);
+    try{
+      await editImage(id, formdata);
+      onFinish();
+      message.success('替换成功');
+      setTimeout(() => window.location.reload(), 300);
+    }catch(err){
+      onError();
+      message.error(`Error: ${err}`);
+    }
+}
+
+const uploadRef = ref<InstanceType<typeof NUpload> | null>(null);
+
 async function downLoad() {
     const src = await getDownLink(getPreviewId()??'')
     const link = document.createElement('a')
@@ -105,6 +133,27 @@ async function downLoad() {
     document.body.removeChild(link)
 
 }
+
+async function deleteImg() {
+  const id = getPreviewId();
+  if (!id) {
+    message.error('没有找到当前预览的图片');
+    return;
+  }
+  if(deleteLoad.value){
+    message.error('操作过于频繁，请稍后重试')
+    return
+  }
+  try {
+    await deleteImage(id);
+    message.success('删除成功');
+    deleteLoad.value = false
+    setTimeout(() => window.location.reload(), 300);
+  } catch (err) {
+    message.error(`Error: ${err}`);
+    deleteLoad.value = false
+  }
+}
 const renderToolbar = ({nodes}:any) =>{
   const download = cloneVNode(nodes.download)
   download.props = {
@@ -112,13 +161,39 @@ const renderToolbar = ({nodes}:any) =>{
     onClick: ()=>{
       try{
         downLoad()
+        message.success('下载成功')
       }catch(err){
         message.error(`Error${err}`)
       }
     }
   }
 
-  return[nodes.rotateCounterclockwise, nodes.rotateClockwise, nodes.resizeToOriginalSize, nodes.zoomOut, nodes.zoomIn, download, nodes.close]
+  const edit = h(
+    NUpload,
+    {
+      ref: uploadRef,
+      abstract: true,          
+      accept: 'image/*',
+      showFileList: false,
+      customRequest: handleEdit,
+    },
+    {
+      default: () => h(NIcon, {
+        class: 'n-base-icon',  
+        innerHTML: EditSvgThin,    
+        onClick: () => uploadRef.value?.openOpenFileDialog()
+      })
+    }
+  )
+
+  const deleteBtn = h(NIcon, {
+    class: 'n-base-icon',
+    innerHTML: DeleteSvg,
+    title: '删除图片',
+    onClick: deleteImg
+  })
+
+  return[nodes.rotateCounterclockwise, nodes.rotateClockwise, nodes.resizeToOriginalSize, nodes.zoomOut, nodes.zoomIn, edit, deleteBtn,nodes.close]
 }
 onMounted(()=>{
   getList();
@@ -164,20 +239,40 @@ onBeforeUnmount(()=>{
       <n-image-group
          :render-toolbar="renderToolbar"
       >
-        <n-image
-          alt="加载失败"
-          class="p-0.5 rounded-1g"
-          v-for="item in visibleItems"
-          
-          :key="item.index"
-          object-fit = 'cover'
-          :width="130"
-          :height="130"
-          :img-props="{
-            style: 'width: 130px; height: 130px; object-fit: cover; display: block; border-radius: 6px;'
-          }"
-          :src="`${BASE_URL}/images/${item.index}/thumbnail?access_token=${piniaTokenProvider.getAccess()}`"
-        />
+      <n-tooltip 
+        trigger="hover"
+        v-for="item in visibleItems"
+      >
+        <template #trigger>
+          <n-image
+            alt="加载失败"
+            class="p-0.5 rounded-1g"
+            :key="item.index"
+            object-fit = 'cover'
+            :width="130"
+            :height="130"
+            :img-props="{
+              style: 'width: 130px; height: 130px; object-fit: cover; display: block; border-radius: 6px;'
+            }"
+            :src="`${BASE_URL}/images/${item.index}/thumbnail?access_token=${piniaTokenProvider.getAccess()}`"
+          >
+            <template #placeholder>
+              <phoebe-loader :size="126" />
+            </template>
+            <template #error>
+              <n-spin
+                :rotate="false"
+                :size="126"
+              >
+                <template #icon>
+                  <feibiqiubi />
+                </template>
+              </n-spin>
+            </template>
+          </n-image>
+        </template>
+        {{item.rejectReason}}
+      </n-tooltip>
       </n-image-group>
     </div>
 
