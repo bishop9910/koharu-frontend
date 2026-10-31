@@ -8,15 +8,14 @@
   import { useMessage } from 'naive-ui';
 
   const authStore = useAuthStore();
-  const useStore = useUserStore();
+  const userStore = useUserStore();
   const router = useRouter();
   const message = useMessage();
   const menuOptions = [
-  { label: '资料', key: 'au' },
-  { label: '密码', key: 'bu' },
+  { label: '资料', key: 'me' },
+  { label: '密码', key: 'password' },
   { 
     label: '我的投稿', 
-    key: 'cu', 
     children: [
       {
         label: '已过审',
@@ -32,7 +31,24 @@
       }
     ]
   },
-  { label: '删除账号', key: 'du' }
+  { 
+    label: '我的头像', 
+    children: [
+      {
+        label: '已过审',
+        key: 'approvedAvators'
+      },
+      {
+        label: '待过审',
+        key: 'pendingAvators'
+      },
+      {
+        label: '未过审',
+        key: 'rejectedAvators'
+      }
+    ]
+  },
+  { label: '删除账号', key: 'deleteUser' }
 
   ]
 
@@ -41,7 +57,7 @@
   }
   
   function handleSelect2(){
-    useStore.logout();
+    userStore.logout();
     router.push('/login');
   }
 
@@ -81,8 +97,8 @@
                   <div class="bg-[#e0eff9] p-4 flex items-center gap-3">
                     <n-avatar round src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg" />
                     <div>
-                      <div class="font-bold text-gray-800">{{ useStore.userInfo?.username }}</div>
-                      <div class="text-xs text-gray-500">{{useStore.userInfo?.email}}</div>
+                      <div class="font-bold text-gray-800">{{ userStore.userInfo?.username }}</div>
+                      <div class="text-xs text-gray-500">{{ userStore.userInfo?.email}}</div>
                     </div>
                   </div>
                   <div class="py-2">
@@ -109,7 +125,9 @@
 
             <div class="flex-1 bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col">
                 <div class="p-6 flex-1 min-h-0 flex flex-col">
+                  <n-modal-provider>
                     <router-view></router-view>
+                  </n-modal-provider>
                 </div>
             </div>
 

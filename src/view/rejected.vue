@@ -24,7 +24,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 const sleep = (ms:number) => new Promise(resolve => setTimeout(resolve, ms));
 let ro: ResizeObserver | null = null;
 const photos = ref<image[]>([]);
-
+const deleteLoad = ref(false)
 
 let page = 1;
 const limit = 90;
@@ -140,12 +140,18 @@ async function deleteImg() {
     message.error('没有找到当前预览的图片');
     return;
   }
+  if(deleteLoad.value){
+    message.error('操作过于频繁，请稍后重试')
+    return
+  }
   try {
     await deleteImage(id);
     message.success('删除成功');
+    deleteLoad.value = false
     setTimeout(() => window.location.reload(), 300);
   } catch (err) {
     message.error(`Error: ${err}`);
+    deleteLoad.value = false
   }
 }
 const renderToolbar = ({nodes}:any) =>{

@@ -12,9 +12,9 @@
   const router = useRouter();
   const message = useMessage();
   const menuOptions = [
-  { label: '首页', key: 'b' },
+  { label: '图库', key: 'image' },
   { label: '设置', key: 'a' },
-  { label: 'sb', key: 'c' }
+  { label: '图集', key: 'albums' }
 
   ]
 

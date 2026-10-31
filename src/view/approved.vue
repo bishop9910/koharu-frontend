@@ -7,7 +7,9 @@ import { piniaTokenProvider } from '@/utils/token-provider';
 import EditSvg from '@/icon/Edit.svg?raw'
 import DeleteSvg from '@/icon/Delete.svg?raw'
 
-
+const downloadLoad = ref(false)
+const editLoad = ref(false)
+const deleteLoad = ref(false)
 const EditSvgThin = EditSvg.replace('stroke-width="2"', 'stroke-width="1.4"')
 const view = ref<HTMLDivElement>();
 const view_w = ref(0);
@@ -139,12 +141,19 @@ async function deleteimg() {
     message.error(`Error未找到图片`)
     return
   }
+  
+  if(deleteLoad.value){
+    message.error('操作过于频繁，请稍后重试')
+    return
+  }
   try{
     await deleteImage(id!)
     message.success('删除成功')
+    deleteLoad.value = false
     setTimeout(() => {window.location.reload()}, 300);
   }catch(err){
     message.error(`Error${err}`)
+    deleteLoad.value = false
   }
 }
 const renderToolbar = ({nodes}:any) =>{
@@ -153,9 +162,16 @@ const renderToolbar = ({nodes}:any) =>{
     ...download.props,
     onClick: ()=>{
       try{
+        if(downloadLoad.value){
+        message.error('操作过于频繁，请稍后重试')
+        return
+        }
+        downloadLoad.value = true
         downLoad()
+        downloadLoad.value = false
       }catch(err){
         message.error(`Error${err}`)
+        downloadLoad.value = false
       }
     }
   }
