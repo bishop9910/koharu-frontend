@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { getPublicKey } from '@/api/auth';
-import type { ChangePasswordRequest } from '@/api/types';
+import { getPublicKey, verifyPassword } from '@/api/auth';
+import type { ChangePasswordRequest, verifyPasswordRequest } from '@/api/types';
 import { changePassword } from '@/api/users';
 import { useDialog, useMessage } from 'naive-ui';
 import { h, ref, type Ref } from 'vue';
@@ -8,7 +8,7 @@ import forge from 'node-forge';
 
 const message = useMessage()
 const passwordRule = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9!@#$%^&*()_\-+=.,?/~`|\\{}\[\]:;"'<>\s]{6,33}$/;
-const formEncrypt: Ref<ChangePasswordRequest> = ref({
+const formEncrypt = ref({
   oldPassword: '',
   newPassword: '',
   encrypted: true
@@ -21,15 +21,18 @@ const loading = ref(false)
 function passwordValid (passwordVal:string){
   return passwordRule.test(passwordVal);
 }
-const encryptPassword = async (form: Ref<ChangePasswordRequest>, username: string, password: string) => {
+const encryptPassword = async (form:any, oldPassword: string, newPassword: string) => {
     try {
       const publicKeyData = await getPublicKey();
       const publicKey = forge.pki.publicKeyFromPem(publicKeyData.publicKey);
-      const encrypted = publicKey.encrypt(password, 'RSA-OAEP', {
+      const encryptedOld = publicKey.encrypt(oldPassword, 'RSA-OAEP', {
         md: forge.md.sha256.create()
       });
-      form.value.oldPassword = forge.util.encode64(encrypted);
-      form.value.newPassword = forge.util.encode64(encrypted);
+      const encryptedNew = publicKey.encrypt(newPassword, 'RSA-OAEP', {
+        md: forge.md.sha256.create()
+      });
+      form.value.oldPassword = forge.util.encode64(encryptedOld);
+      form.value.newPassword = forge.util.encode64(encryptedNew);
     } catch(error: any){
       message.error(`[Error]: ${error}`);
       loading.value = false;
@@ -49,8 +52,17 @@ async function handleSubmit(){
     return;
   }
   await encryptPassword(formEncrypt, oldPassword.value, newPassword.value);
+  const verifyPasswordRequest = {
+    password: formEncrypt.value.oldPassword,
+    encrypt: true
+  }
+  const changePasswordRequest = {
+    newPassword: formEncrypt.value.newPassword,
+    encrypted: true
+  }
   try{
-    await changePassword(formEncrypt.value)
+    const verifyPasswordResponse = await verifyPassword(verifyPasswordRequest)
+    await changePassword(changePasswordRequest,verifyPasswordResponse.reauthToken)
     message.success('提交成功')
     loading.value = false
   }catch(err){

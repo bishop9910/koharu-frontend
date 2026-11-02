@@ -146,6 +146,17 @@ export interface PublicKeyResponse {
   publicKey: string
 }
 
+export interface verifyPasswordRequest {
+  password: string,
+  encrypt: boolean
+}
+
+export interface verifyPasswordResponse {
+  valid: boolean,
+  reauthToken: string,
+  expiresIn: number
+}
+
 /* ============================================================
  * User
  * ============================================================ */
@@ -167,7 +178,6 @@ export type ListUserResponse = Paginated<User>;
 export type GetSelfInfoResponse = User;
 
 export interface ChangePasswordRequest {
-  oldPassword: string;
   newPassword: string;
   encrypted: boolean;
 }

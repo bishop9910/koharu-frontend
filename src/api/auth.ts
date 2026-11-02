@@ -1,5 +1,5 @@
 import http from "@/utils/request";
-import type { LoginRequest, LoginResponse, PublicKeyResponse } from "./types";
+import type { LoginRequest, LoginResponse, PublicKeyResponse, verifyPasswordRequest, verifyPasswordResponse } from "./types";
 
 export function login(loginRequest: LoginRequest) {
   return http.post<LoginResponse>(
@@ -11,5 +11,15 @@ export function login(loginRequest: LoginRequest) {
 export function getPublicKey() {
   return http.get<PublicKeyResponse>(
     "/auth/public-key"
+  )
+}
+
+export function verifyPassword(verifyPasswordRequest: verifyPasswordRequest) {
+  return http.post<verifyPasswordResponse>(
+    "/auth/verify-password",
+    verifyPasswordRequest,
+    {
+      skipAuthRefresh: true
+    }
   )
 }
