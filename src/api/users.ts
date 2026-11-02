@@ -1,87 +1,65 @@
-import http from "@/utils/request";
+import http from '@/utils/request'
 import type {
-  NewUserResponse,
-  NewUserRequest,
-  ListUserRequest,
-  ListUserResponse,
-  GetSelfInfoResponse,
   ChangePasswordRequest,
-  ChangePasswordResponse,
-  GetUserPublicInfoRequest,
-  GetUserPublicInfoResponse,
-  GetUserInfoRequest,
-  GetUserInfoResponse,
+  CreateUserRequest,
+  MessageResponse,
+  Paginated,
+  PaginationQuery,
   UpdateUserRequest,
-  UpdateUserResponse,
-  DeleteUserRequest,
-  DeleteUserResponse,
   UpdateUserRoleRequest,
-  UpdateUserRoleResponse
-} from "./types";
+  User,
+  UserListItem,
+  UserPublicInfo
+} from './types'
 
-export function newUser(newUserRquest: NewUserRequest) {
-  return http.post<NewUserResponse>(
-    "/users",
-    newUserRquest,
-  )
+export function createUser(payload: CreateUserRequest) {
+  return http.post<User>('/users', payload)
 }
 
-export function listUser(listUserRequest: ListUserRequest) {
-  return http.get<ListUserResponse>(
-    "/users",
-    {
-      params: listUserRequest
+export function listUsers(query: PaginationQuery) {
+  return http.get<Paginated<UserListItem>>('/users', { params: query })
+}
+
+export function getCurrentUser() {
+  return http.get<User>('/users/me')
+}
+
+export function changePassword(payload: ChangePasswordRequest, reauthToken: string) {
+  return http.patch<MessageResponse>('/users/me/password', payload, {
+    headers: {
+      'X-Reauth-Token': reauthToken
     }
-  )
+  })
 }
 
-export function getSelfInfo() {
-  return http.get<GetSelfInfoResponse>(
-    "/users/me"
-  )
+export function getUserPublicInfo(userId: string) {
+  return http.get<UserPublicInfo>(`/users/${userId}/public`)
 }
 
-export function changePassword(changePasswordRequest: ChangePasswordRequest, reauthToken: string) {
-  return http.patch<ChangePasswordResponse>(
-    "/users/me/password",
-    changePasswordRequest,
-    {
-      headers: {
-        'X-Reauth-Token': reauthToken
-      },
-      skipAuthRefresh: true
+export function getUser(userId: string) {
+  return http.get<User>(`/users/${userId}`)
+}
+
+export function updateUser(userId: string, payload: UpdateUserRequest) {
+  return http.patch<User>(`/users/${userId}`, payload)
+}
+
+export function deleteUser(userId: string, reauthToken: string) {
+  return http.delete<MessageResponse>(`/users/${userId}`, {
+    headers: {
+      'X-Reauth-Token': reauthToken
     }
-  )
+  })
 }
 
-export function getUserPublicInfo(getUserPublicInfoRequest: GetUserPublicInfoRequest) {
-  return http.get<GetUserPublicInfoResponse>(
-    `/users/${getUserPublicInfoRequest.id}/public`
-  )
-}
-
-export function getUserInfo(getUserInfoRequest: GetUserInfoRequest) {
-  return http.get<GetUserInfoResponse>(
-    `/users/${getUserInfoRequest.id}`
-  )
-}
-
-export function updateUser(userId: string, updateUserRequest: UpdateUserRequest) {
-  return http.patch<UpdateUserResponse>(
-    `/users/${userId}`,
-    updateUserRequest
-  )
-}
-
-export function deleteUser(deleteUserRequest: DeleteUserRequest) {
-  return http.delete<DeleteUserResponse>(
-    `/users/${deleteUserRequest.id}`
-  )
-}
-
-export function updateUserRole(userId: string, updateUserRoleRequest: UpdateUserRoleRequest) {
-  return http.patch<UpdateUserRoleResponse>(
-    `/users/${userId}/role`,
-    updateUserRoleRequest
-  )
+export function updateUserRole(
+  userId: string,
+  payload: UpdateUserRoleRequest,
+  reauthToken: string
+) {
+  return http.patch<User>(`/users/${userId}/role`, payload, {
+    headers: {
+      'X-Reauth-Token': reauthToken
+    }
+  })
 }

@@ -32,8 +32,17 @@ coverage
 /cypress/videos/
 /cypress/screenshots/
 
-# Vitest
+# Vitest / Playwright
 __screenshots__/
+playwright-report/
+test-results/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# Local tooling caches
+.graphflow/
+graphflow-out/
+.dsh-*
+*.sqlite
+*.sqlite3

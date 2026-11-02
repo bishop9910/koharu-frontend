@@ -1,62 +1,60 @@
-import http from "@/utils/request";
+import http from '@/utils/request'
 import type {
-  uploadImageRequest,
-  uploadImageReponse,
-  getApprovedImageListaRequest,
-  getApprovedImageListResponse,
-  approveImageRequest,
-  approveImageResponse,
-  editImageRequest,
-  editImageResponse,
-  getUploadImageListResponse,
-  getThumbnailStreamResponse,
-  getDownLinkResponse,
-  downImageResponse,
-  getImageDetailResponse,
-  deleteImageResponse,
-  getUploadImageListRequest
-} from './types';
+  DownloadImageQuery,
+  DownloadLinkResponse,
+  ImageItem,
+  ImageListQuery,
+  MessageResponse,
+  ModifyImageResponse,
+  MyImageListQuery,
+  MyImageListItem,
+  Paginated,
+  PendingImage,
+  ReviewImageRequest,
+  UploadImageResponse
+} from './types'
 
-export function uploadImage(uploadImageRequest: uploadImageRequest) {
-  return http.post<uploadImageReponse>('/images', uploadImageRequest);
+export function uploadImage(formData: FormData) {
+  return http.upload<UploadImageResponse>('/images', formData)
 }
 
-export function getApprovedImageList(getApprovedImageListaRequest: getApprovedImageListaRequest) {
-  return http.get<getApprovedImageListResponse>('/images', {
-    params: getApprovedImageListaRequest
-  });
+/** 公开图库，默认只返回已过审图片 */
+export function getImages(query: ImageListQuery) {
+  return http.get<Paginated<ImageItem>>('/images', { params: query })
 }
 
-export function approveImage(id: string, approveImageRequest: approveImageRequest) {
-  return http.post<approveImageResponse>(`/images/${id}/review`, approveImageRequest)
+export function getMyImages(query: MyImageListQuery) {
+  return http.get<Paginated<MyImageListItem>>('/images/my', { params: query })
 }
 
-export function editImage(id: string, editImageRequest: editImageRequest) {
-  return http.post<editImageResponse>(`/images/${id}/modify`, editImageRequest)
+export function getPendingImages(query: ImageListQuery) {
+  return http.get<Paginated<PendingImage>>('/images/pending', { params: query })
 }
 
-export function getUploadImageList(getUploadImageListRequest: getUploadImageListRequest) {
-  return http.get<getUploadImageListResponse>('/images/my', {
-    params: getUploadImageListRequest
-  })
+export function reviewImage(id: string, payload: ReviewImageRequest) {
+  return http.post<ImageItem>(`/images/${id}/review`, payload)
+}
+
+export function modifyImage(id: string, formData: FormData) {
+  return http.upload<ModifyImageResponse>(`/images/${id}/modify`, formData)
+}
+
+export function getImage(id: string) {
+  return http.get<ImageItem>(`/images/${id}`)
 }
 
 export function getThumbnailStream(id: string) {
-  return http.get<getThumbnailStreamResponse>(`/images/${id}/thumbnail`)
+  return http.get<Blob>(`/images/${id}/thumbnail`, { responseType: 'blob' })
 }
 
-export function getDownLink(id: string) {
-  return http.get<getDownLinkResponse>(`/images/${id}/sign`)
+export function signImageDownload(id: string) {
+  return http.get<DownloadLinkResponse>(`/images/${id}/sign`)
 }
 
-export function downImage(id: string) {
-  return http.get<downImageResponse>(`/images/${id}/download`)
-}
-
-export function getImageDetail(id: string) {
-  return http.get<getImageDetailResponse>(`/images/${id}`)
+export function downloadImage(id: string, query: DownloadImageQuery) {
+  return http.download(`/images/${id}/download`, { params: query })
 }
 
 export function deleteImage(id: string) {
-  return http.delete<deleteImageResponse>(`/images/${id}`)
+  return http.delete<MessageResponse>(`/images/${id}`)
 }

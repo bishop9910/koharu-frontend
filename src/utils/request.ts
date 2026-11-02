@@ -1,11 +1,11 @@
-// src/utils/request.ts
 import axios, {
   AxiosError,
   AxiosHeaders,
   type AxiosInstance,
   type AxiosResponse,
   type InternalAxiosRequestConfig
-} from 'axios';
+} from 'axios'
+import { API_BASE_URL } from '@/utils/env'
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
@@ -35,9 +35,9 @@ export function setTokenProvider(provider: TokenProvider) {
 
 function requireProvider(): TokenProvider {
   if (!tokenProvider) {
-    throw new Error('[request] 未注入 TokenProvider，请先调用 setTokenProvider()');
+    throw new Error('[request] TokenProvider 尚未注入')
   }
-  return tokenProvider;
+  return tokenProvider
 }
 
 let onAuthFailed: () => void = () => {
@@ -74,19 +74,18 @@ export class RequestError extends Error {
   }
 }
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'; // 坑爹
-const REFRESH_URL = '/auth/refresh';
-const AUTH_FAIL_STATUSES = [401];
+const REFRESH_URL = '/auth/refresh'
+const AUTH_FAIL_STATUSES = [401]
 
 const request: AxiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_BASE_URL,
   timeout: 15000
-});
+})
 
 const refreshClient: AxiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_BASE_URL,
   timeout: 15000
-});
+})
 
 let isRefreshing = false;
 let pendingQueue: Array<{
@@ -223,15 +222,8 @@ export const http = {
     formData: FormData,
     config?: import('axios').AxiosRequestConfig
   ): Promise<T> {
-    return request
-      .post<T>(url, formData, {
-        ...config,
-        headers: {
-          ...(config?.headers as Record<string, string>),
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-      .then((res) => res.data);
+    // 交给浏览器/axios 生成带 boundary 的 Content-Type，手写会导致后端无法解析
+    return request.post<T>(url, formData, config).then((res) => res.data);
   },
 
   download(url: string, config?: import('axios').AxiosRequestConfig): Promise<Blob> {

@@ -1,345 +1,282 @@
-import type { Role } from '@/enums/role';
-import type { Status } from '@/enums/status';
+import type { Role } from '@/enums/role'
+import type { AvatarStatus, ImageStatus, ReviewStatus } from '@/enums/status'
 
 /* ============================================================
  * 通用
  * ============================================================ */
 
-/** 只含 message 的通用响应 */
 export interface MessageResponse {
-  message: string;
+  message: string
 }
 
-/** 分页请求参数 */
 export interface PaginationQuery {
-  page: number;
-  limit: number;
+  page: number
+  limit: number
 }
 
-/** 分页响应 */
 export interface Paginated<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPage: number;
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
 }
 
-/** 后端返回的审计时间戳 */
 export interface Timestamps {
-  createdAt: string;
-  updatedAt?: string;
+  createdAt: string
+  updatedAt?: string
 }
 
 /* ============================================================
- * 实体
+ * 用户
  * ============================================================ */
 
-/** 头像 */
-export interface UserAvatar extends Timestamps {
-  id: string;
-  path: string;
+export interface UserAvatar {
+  id: string
+  path: string
   userId: string
+  createdAt: string
 }
 
-export type UserAvatarRef = Pick<UserAvatar, "path">
-
-/** 用户基础信息 */
-export interface UserBaseInfo {
-  id: string;
-  username: string;
-  email: string;
-  role: Role;
+/** 登录接口返回的用户信息 */
+export interface AuthUser {
+  id: string
+  username: string
+  role: Role
 }
 
-/** 完整用户（列表 / 详情接口返回） */
-export interface User extends UserBaseInfo {
-  emailVerified: boolean;
-  bio: string | null;
-  avatar: UserAvatar | null;
-  createAt: string
+/** 用户公开资料 */
+export interface UserPublicInfo {
+  id: string
+  username: string
+  bio: string | null
+  role: Role
+  avatar: Pick<UserAvatar, 'path'> | null
+  avatarUrl?: string | null
 }
 
-export interface UserPublicInfo extends UserBaseInfo {
-  bio: string | null,
-  avatar: UserAvatarRef | null
+/** GET /users/me、GET /users/{id} */
+export interface User extends Timestamps {
+  id: string
+  username: string
+  email: string
+  role: Role
+  bio: string | null
+  emailVerified: boolean
+  reviewExempt: boolean
+  avatar: UserAvatar | null
+  deletedAt: string | null
 }
 
-export type UserRef = Pick<User, 'id' | 'username' | 'avatar'>;
-
-export type EditableUserFields = Pick<User, 'username' | 'email' | 'bio'>;
-
-export interface image extends Timestamps {
-  id: string;
-  filename: string;
-  thumbnailPath: string;
-  mimeType: string;
-  size: number;
-  width: number;
-  height: number;
-  userId?: string;
-  status?: string;
-  md5?: string;
-  rejectReason: string | null;
-  editCount?: number;
-  uploaderIp?: string;
-  thumbnailUrl?: string
-}
-export interface apporoveingImage {
-  id: string,
-  filename: string,
-  thumbnailPath: string,
-  mimeType: string,
-  size: number,
-  width: number,
-  height: number,
-  userId: string,
-  username?: string,
-  md5?: string;
-  status: string,
-  rejectReason: null,
-  createdAt: string,
-  thumbnailUrl?: string,
-  archived?: boolean
+/** GET /users（MODERATOR+） */
+export interface UserListItem extends Timestamps {
+  id: string
+  username: string
+  email: string
+  role: Role
+  bio: string | null
+  emailVerified: boolean
+  reviewExempt: boolean
+  avatar: UserAvatar | null
+  avatarUrl?: string | null
 }
 
-export interface tag {
-  id: string;
-  name: string;
-  createAt: string
-}
-
-export interface album extends Timestamps {
-  id: string,
-  title: string,
-  description: string,
-  visibility: string,
-  locked: boolean,
-  ownerId: string,
-  owner: {
-    id: string,
-    username: string
-  },
-  tags: tag[],
-  images: image[],
-  imageCount?: number
-}
+export type EditableUserFields = Pick<User, 'username' | 'email' | 'bio'>
 
 /* ============================================================
- * Auth
+ * 认证
  * ============================================================ */
 
 export interface LoginRequest {
-  username: string;
-  password: string;
-  encrypted: boolean;
+  username: string
+  password: string
+  encrypted: boolean
 }
 
 export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-  user: UserBaseInfo;
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+  user: AuthUser
 }
 
 export interface PublicKeyResponse {
   publicKey: string
 }
 
-export interface verifyPasswordRequest {
-  password: string,
+export interface VerifyPasswordRequest {
+  password: string
   encrypted: boolean
 }
 
-export interface verifyPasswordResponse {
-  valid: boolean,
-  reauthToken: string,
+export interface VerifyPasswordResponse {
+  valid: boolean
+  reauthToken: string
   expiresIn: number
 }
 
 /* ============================================================
- * User
+ * 用户接口
  * ============================================================ */
 
-export interface NewUserRequest {
-  username: string;
-  email: string;
-  password: string;
-  bio: string;
-  encrypted: boolean;
+export interface CreateUserRequest {
+  username: string
+  email: string
+  password: string
+  bio?: string
+  encrypted: boolean
 }
 
-export type NewUserResponse = User;
+export interface UpdateUserRequest {
+  username?: string
+  email?: string
+  bio?: string
+}
 
-export type ListUserRequest = PaginationQuery;
-
-export type ListUserResponse = Paginated<User>;
-
-export type GetSelfInfoResponse = User;
+export interface UpdateUserRoleRequest {
+  role: Role
+}
 
 export interface ChangePasswordRequest {
-  newPassword: string;
-  encrypted: boolean;
+  newPassword: string
+  encrypted: boolean
 }
-
-export type ChangePasswordResponse = MessageResponse;
-
-export type GetUserPublicInfoRequest = Pick<User, "id">;
-
-export type GetUserPublicInfoResponse = UserPublicInfo;
-
-export type GetUserInfoRequest = Pick<User, "id">;
-
-export type GetUserInfoResponse = User;
-
-export type UpdateUserRequest = Partial<EditableUserFields>;
-
-export type UpdateUserResponse = User;
-
-export type DeleteUserRequest = Pick<User, "id">;
-
-export type DeleteUserResponse = MessageResponse;
-
-export type UpdateUserRoleRequest = Pick<User, "role">;
-
-export type UpdateUserRoleResponse = User;
 
 /* ============================================================
- * image
+ * 图片
  * ============================================================ */
 
-export type uploadImageRequest = FormData;
-
-export interface uploadImageReponse extends MessageResponse, image { }
-
-export interface getApprovedImageListaRequest {
-  page: number;
-  limit: number;
-  status?: any
+export interface ImageItem extends Timestamps {
+  id: string
+  filename: string
+  thumbnailPath: string
+  thumbnailUrl: string
+  mimeType: string
+  size: number
+  width: number
+  height: number
+  userId: string
+  status: ImageStatus
+  rejectReason: string | null
+  editCount: number
+  md5: string
 }
 
-export type getApprovedImageListResponse = Paginated<apporoveingImage>;
-
-export interface approveImageRequest {
-  status: string;
-  reason: string
+export interface MyImageListItem extends ImageItem {
+  archived: boolean
 }
 
-export type approveImageResponse = image;
+export interface PendingImage extends ImageItem {
+  username: string
+}
 
-export type editImageRequest = FormData;
+export interface ImageListQuery extends PaginationQuery {
+  status?: ImageStatus
+}
 
-export interface editImageResponse extends MessageResponse, image { }
+export interface MyImageListQuery extends PaginationQuery {
+  status?: ImageStatus
+}
 
-export type getUploadImageListRequest = getApprovedImageListaRequest;
+export interface UploadImageResponse extends MessageResponse {
+  image: ImageItem
+}
 
-export type getUploadImageListResponse = Paginated<apporoveingImage>;
+export interface ModifyImageResponse extends MessageResponse {
+  image: ImageItem
+}
 
-export type getThumbnailStreamResponse = Blob;
+export interface ReviewImageRequest {
+  status: ReviewStatus
+  reason?: string
+}
 
-export interface getDownLinkResponse {
-  downloadUrl: string;
+export interface DownloadLinkResponse {
+  downloadUrl: string
   expiresInMs: number
 }
 
-export interface downImageRequest {
-  singnature: string;
+export interface DownloadImageQuery {
+  signature: string
   expires: string
 }
 
-export type downImageResponse = Blob;
-
-export type getImageDetailResponse = image;
-
-export type deleteImageResponse = MessageResponse;
-
-export type getApprovingImage = Paginated<image>;
-
 /* ============================================================
- * albums
+ * 头像
  * ============================================================ */
 
-export interface createAlbumsRequest {
-  title: string;
-  description: string;
-  visibility: string;
+export interface PendingAvatar {
+  submissionId: string
+  userId: string
+  username: string
+  status: AvatarStatus
+  imageUrl: string
+  createdAt: string
+}
+
+export interface AvatarSubmission {
+  id: string
+  status: AvatarStatus
+  createdAt: string
+  imageUrl: string
+}
+
+export interface UploadAvatarResponse extends MessageResponse {
+  submission: AvatarSubmission
+}
+
+export interface ReviewAvatarRequest {
+  status: AvatarStatus.APPROVED | AvatarStatus.REJECTED
+  reason?: string
+}
+
+export interface ReviewAvatarResponse extends MessageResponse {
+  status: AvatarStatus
+  avatar: UserAvatar | null
+}
+
+/* ============================================================
+ * 图集与标签
+ * ============================================================ */
+
+export interface Tag {
+  id: string
+  name: string
+  createdAt: string
+}
+
+export interface Album extends Timestamps {
+  id: string
+  title: string
+  description: string
+  visibility: string
+  locked: boolean
+  ownerId: string
+  owner: Pick<User, 'id' | 'username'>
+  tags: Tag[]
+  images: ImageItem[]
+  imageCount?: number
+}
+
+export interface CreateAlbumRequest {
+  title: string
+  description?: string
+  visibility: string
   tags: string[]
 }
 
-export type createAlbumsResponse = album;
-
-export type getAlbumsListRequest = PaginationQuery;
-
-export type getAlbumsListResponse = Paginated<album>;
-
-export interface searchAlbumsRequest extends PaginationQuery {
-  q: string;
-  tags: tag[]
+export interface UpdateAlbumRequest {
+  title?: string
+  description?: string
+  visibility?: string
+  tags?: string[]
 }
 
-export type searchAlbumsResponse = Paginated<album>;
-
-export type getAlubumDetailResponse = album;
-
-export interface editAlumRequest {
-  title: string;
-  description: string;
-  visibility: string;
-  tags: string[]
+export interface SearchAlbumsQuery extends PaginationQuery {
+  q: string
+  tags?: string[]
 }
 
-export type editAlumResponse = album;
-
-export type deleteAlbumResponse = MessageResponse;
-
-export type unlockAlbumResponse = album;
-
-export interface archiveImagesRequest {
+export interface AlbumImagesRequest {
   imageIds: string[]
 }
-
-export type archiveImagesResponse = album;
-
-export type removeImageRequest = archiveImagesRequest;
-
-export type removeImageResponse = album;
-
-/* ============================================================
- * tags
- * ============================================================ */
-
-export type getTagListResponse = tag[];
-
-export interface createTagRequest {
-  name: string
-}
-
-export type createTagResponse = tag;
-
-export type deleteTagResponse = MessageResponse;
-
-/* ============================================================
- * avatars
- * ============================================================ */
-
-export type uploadAvatarsRequest = File;
-
-export interface uploadAvatarsResponse extends MessageResponse {
-  submission: {
-    id: string;
-    status: string
-  }
-}
-
-export type deleteAvatarsResponse = MessageResponse;
-
-export interface apporoveAvatarsRequest {
-  ststus: string;
-  reason: string
-}
-
-export type getAvatarStreamResponse = Blob;
-
-
-
-

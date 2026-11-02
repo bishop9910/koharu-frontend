@@ -1,19 +1,14 @@
-import http from "@/utils/request";
-import type {
-  getTagListResponse,
-  createTagRequest,
-  createTagResponse,
-  deleteTagResponse
-} from "@/api/types";
+import http from '@/utils/request'
+import type { MessageResponse, Tag } from './types'
 
-export function getTagList() {
-  return http.get<getTagListResponse>('/tags')
+export function getTags() {
+  return http.get<Tag[]>('/tags')
 }
 
-export function createTag(createTagRequest: createTagRequest) {
-  return http.post<createTagResponse>('/tags', createTagRequest)
+export function createTag(name: string) {
+  return http.post<Tag>('/tags', { name })
 }
 
 export function deleteTag(id: string) {
-  return http.delete<deleteTagResponse>(`/tags/${id}`)
+  return http.delete<MessageResponse>(`/tags/${id}`)
 }

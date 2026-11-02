@@ -1,26 +1,17 @@
-// src/stores/user.ts
-import { defineStore } from 'pinia';
-import cache from '@/utils/cache';
-import { login as loginApi } from '@/api/auth';
-import { getSelfInfo } from '@/api/users';
-import { useAuthStore } from '@/stores/auth';
-import type {
-  LoginRequest,
-  LoginResponse,
-  User,
-  UserBaseInfo,
-  Timestamps
-} from '@/api/types';
+import { defineStore } from 'pinia'
+import cache from '@/utils/cache'
+import { useAuthStore } from '@/stores/auth'
+import type { AuthUser } from '@/api/types'
 
-const USER_KEY = 'user:info';
+const USER_KEY = 'user:info'
 
 interface UserState {
-  userInfo: UserBaseInfo | null;
+  userInfo: AuthUser | null
 }
 
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    userInfo: cache.local.getJSON<UserBaseInfo>(USER_KEY)
+    userInfo: cache.local.getJSON<AuthUser>(USER_KEY)
   }),
 
   getters: {
@@ -31,20 +22,19 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
-    setUserInfo(userInfo: UserBaseInfo) {
-      this.userInfo = userInfo;
-      cache.local.setJSON<UserBaseInfo>(USER_KEY, userInfo);
+    setUserInfo(userInfo: AuthUser) {
+      this.userInfo = userInfo
+      cache.local.setJSON<AuthUser>(USER_KEY, userInfo)
     },
 
     clearUser() {
-      this.userInfo = null;
-      cache.local.remove(USER_KEY);
+      this.userInfo = null
+      cache.local.remove(USER_KEY)
     },
 
     logout() {
-      useAuthStore().clearTokens();
-      this.clearUser();
-    },
-
+      useAuthStore().clearTokens()
+      this.clearUser()
+    }
   }
-});
+})

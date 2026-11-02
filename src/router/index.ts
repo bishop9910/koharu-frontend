@@ -4,98 +4,132 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      name: '主页',
-      path: '/home',
-      component: () => import('@/view/HomeView.vue'),
-      redirect: '/home/image',
-      children: [
-        {
-          name: '图库',
-          path: 'image',
-          component: () => import('@/view/image.vue')
-        },
-        {
-          name: 'a',
-          path: 'a',
-          component: () => import('@/view/a.vue')
-        },
-        {
-          name: '图集',
-          path: 'albums',
-          component: () => import('@/view/albums.vue')
-        }
-      ]
+      path: '/',
+      redirect: '/home'
     },
     {
-      name: '我的',
-      path: '/profile',
-      component: () => import('@/view/UserView.vue'),
-      redirect: '/profile/me',
-      children: [
-        {
-          name: '资料',
-          path: 'me',
-          component: () => import('@/view/me.vue')
-        },
-        {
-          name: '密码',
-          path: 'password',
-          component: () => import('@/view/password.vue')
-        },
-        {
-          name: '删除账号',
-          path: 'deleteUser',
-          component: () => import('@/view/deleteUser.vue')
-        },
-        {
-          name: 'approved',
-          path: 'approved',
-          component: () => import('@/view/approved.vue')
-        },
-        {
-          name: 'pending',
-          path: 'pending',
-          component: () => import('@/view/pending.vue')
-        },
-        {
-          name: 'rejected',
-          path: 'rejected',
-          component: () => import('@/view/rejected.vue')
-        },
-        {
-          name: 'approvedAvators',
-          path: 'approvedAvators',
-          component: () => import('@/view/approvedAvators.vue')
-        },
-        {
-          name: 'pendingAvators',
-          path: 'pendingAvators',
-          component: () => import('@/view/pendingAvators.vue')
-        },
-        {
-          name: 'rejectedAvators',
-          path: 'rejectedAvators',
-          component: () => import('@/view/rejectedAvators.vue')
-        }
-
-      ]
-    },
-    {
-      name: '登录',
       path: '/login',
-      component: () => import('@/view/LoginView.vue')
+      name: 'login',
+      component: () => import('@/view/auth/LoginView.vue'),
+      meta: { guestOnly: true, title: '登录' }
     },
     {
-      name: '注册',
-      path: '/registe',
-      component: () => import('@/view/RegisteView.vue')
+      path: '/register',
+      name: 'register',
+      alias: '/registe',
+      component: () => import('@/view/auth/RegisterView.vue'),
+      meta: { guestOnly: true, title: '注册' }
     },
     {
-      redirect: '/login',
-      path: '/'
+      path: '/home',
+      component: () => import('@/view/home/HomeView.vue'),
+      redirect: '/home/gallery',
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: 'gallery',
+          name: 'gallery',
+          component: () => import('@/view/home/GalleryView.vue'),
+          meta: { title: '图库' }
+        },
+        {
+          path: 'albums',
+          name: 'albums',
+          component: () => import('@/view/home/AlbumsView.vue'),
+          meta: { title: '图集' }
+        },
+        {
+          path: 'image',
+          redirect: '/home/gallery'
+        },
+        {
+          path: 'a',
+          redirect: '/home/gallery'
+        }
+      ]
+    },
+    {
+      path: '/profile',
+      component: () => import('@/view/profile/ProfileLayout.vue'),
+      redirect: '/profile/me',
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: 'me',
+          name: 'profile',
+          component: () => import('@/view/profile/ProfileView.vue'),
+          meta: { title: '个人资料' }
+        },
+        {
+          path: 'password',
+          name: 'password',
+          component: () => import('@/view/profile/PasswordView.vue'),
+          meta: { title: '修改密码' }
+        },
+        {
+          path: 'delete',
+          name: 'delete-account',
+          component: () => import('@/view/profile/DeleteAccountView.vue'),
+          meta: { title: '删除账号' }
+        },
+        {
+          path: 'avatar',
+          name: 'avatar',
+          component: () => import('@/view/profile/AvatarView.vue'),
+          meta: { title: '我的头像' }
+        },
+        {
+          path: 'images/approved',
+          name: 'my-images-approved',
+          component: () => import('@/view/profile/images/ApprovedImagesView.vue'),
+          meta: { title: '已通过投稿' }
+        },
+        {
+          path: 'images/pending',
+          name: 'my-images-pending',
+          component: () => import('@/view/profile/images/PendingImagesView.vue'),
+          meta: { title: '待审核投稿' }
+        },
+        {
+          path: 'images/rejected',
+          name: 'my-images-rejected',
+          component: () => import('@/view/profile/images/RejectedImagesView.vue'),
+          meta: { title: '未通过投稿' }
+        },
+        {
+          path: 'deleteUser',
+          redirect: '/profile/delete'
+        },
+        {
+          path: 'approved',
+          redirect: '/profile/images/approved'
+        },
+        {
+          path: 'pending',
+          redirect: '/profile/images/pending'
+        },
+        {
+          path: 'rejected',
+          redirect: '/profile/images/rejected'
+        },
+        {
+          path: 'approvedAvators',
+          redirect: '/profile/avatar'
+        },
+        {
+          path: 'pendingAvators',
+          redirect: '/profile/avatar'
+        },
+        {
+          path: 'rejectedAvators',
+          redirect: '/profile/avatar'
+        }
+      ]
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/home'
     }
-
-
   ]
 })
 

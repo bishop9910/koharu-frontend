@@ -1,25 +1,24 @@
-import http from "@/utils/request";
-import type { LoginRequest, LoginResponse, PublicKeyResponse, verifyPasswordRequest, verifyPasswordResponse } from "./types";
+import http from '@/utils/request'
+import type {
+  LoginRequest,
+  LoginResponse,
+  PublicKeyResponse,
+  VerifyPasswordRequest,
+  VerifyPasswordResponse
+} from './types'
 
-export function login(loginRequest: LoginRequest) {
-  return http.post<LoginResponse>(
-    "/auth/login",
-    loginRequest,
-  )
+export function login(payload: LoginRequest) {
+  return http.post<LoginResponse>('/auth/login', payload, {
+    skipAuthRefresh: true
+  })
 }
 
 export function getPublicKey() {
-  return http.get<PublicKeyResponse>(
-    "/auth/public-key"
-  )
+  return http.get<PublicKeyResponse>('/auth/public-key')
 }
 
-export function verifyPassword(verifyPasswordRequest: verifyPasswordRequest) {
-  return http.post<verifyPasswordResponse>(
-    "/auth/verify-password",
-    verifyPasswordRequest,
-    {
-      skipAuthRefresh: true
-    }
-  )
+export function verifyPassword(payload: VerifyPasswordRequest) {
+  return http.post<VerifyPasswordResponse>('/auth/verify-password', payload, {
+    skipAuthRefresh: true
+  })
 }

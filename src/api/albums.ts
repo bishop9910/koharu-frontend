@@ -1,61 +1,47 @@
-import http from "@/utils/request";
+import http from '@/utils/request'
 import type {
-  createAlbumsRequest,
-  createAlbumsResponse,
-  getAlbumsListRequest,
-  getAlbumsListResponse,
-  searchAlbumsRequest,
-  searchAlbumsResponse,
-  getAlubumDetailResponse,
-  editAlumRequest,
-  editAlumResponse,
-  deleteAlbumResponse,
-  unlockAlbumResponse,
-  archiveImagesRequest,
-  archiveImagesResponse,
-  removeImageRequest,
-  removeImageResponse
-} from "@/api/types";
-import type { DrawerTheme } from "naive-ui/es/drawer/styles";
+  Album,
+  AlbumImagesRequest,
+  CreateAlbumRequest,
+  MessageResponse,
+  Paginated,
+  PaginationQuery,
+  SearchAlbumsQuery,
+  UpdateAlbumRequest
+} from './types'
 
-export function createAlbums(createAlbumsRequest: createAlbumsRequest) {
-  return http.post<createAlbumsResponse>('/albums', createAlbumsRequest)
+export function createAlbum(payload: CreateAlbumRequest) {
+  return http.post<Album>('/albums', payload)
 }
 
-export function getAlbumsList(getAlbumsListRequest: getAlbumsListRequest) {
-  return http.get<getAlbumsListResponse>('/albums', {
-    params: getAlbumsListRequest
-  })
+export function getAlbums(query: PaginationQuery) {
+  return http.get<Paginated<Album>>('/albums', { params: query })
 }
 
-export function searchAlbums(searchAlbumsRequest: searchAlbumsRequest) {
-  return http.get<searchAlbumsResponse>('/albums/search', {
-    params: searchAlbumsRequest
-  })
+export function searchAlbums(query: SearchAlbumsQuery) {
+  return http.get<Paginated<Album>>('/albums/search', { params: query })
 }
 
-export function getAlubumDetail(id: string) {
-  return http.get<getAlubumDetailResponse>(`/albums/${id}`)
+export function getAlbum(id: string) {
+  return http.get<Album>(`/albums/${id}`)
 }
 
-export function editAlum(id: string, editAlumRequest: editAlumRequest) {
-  return http.patch<editAlumResponse>(`/albums/${id}`, editAlumRequest)
+export function updateAlbum(id: string, payload: UpdateAlbumRequest) {
+  return http.patch<Album>(`/albums/${id}`, payload)
 }
 
 export function deleteAlbum(id: string) {
-  return http.delete<deleteAlbumResponse>(`/albums/${id}`)
+  return http.delete<MessageResponse>(`/albums/${id}`)
 }
 
 export function unlockAlbum(id: string) {
-  return http.post<unlockAlbumResponse>(`/albums/${id}/unlock`)
+  return http.post<Album>(`/albums/${id}/unlock`)
 }
 
-export function archiveImages(id: string, archiveImagesRequest: archiveImagesRequest) {
-  return http.post<archiveImagesResponse>(`/albums/${id}/images`, archiveImagesRequest)
+export function addAlbumImages(id: string, payload: AlbumImagesRequest) {
+  return http.post<Album>(`/albums/${id}/images`, payload)
 }
 
-export function removeImage(id: string, removeImageRequest: removeImageRequest) {
-  return http.delete<removeImageResponse>(`/albums/${id}/images`, {
-    data: removeImageRequest
-  })
+export function removeAlbumImages(id: string, payload: AlbumImagesRequest) {
+  return http.delete<Album>(`/albums/${id}/images`, { data: payload })
 }

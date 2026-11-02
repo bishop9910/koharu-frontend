@@ -1,42 +1,46 @@
-# koharu-frontend
+# Koharu Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Koharu 图片站的前端，基于 Vue 3、TypeScript、Vite、Pinia、Vue Router 与 Naive UI。
 
-## Recommended IDE Setup
+后端接口文档位于 `docs-backend/`，所有接口统一使用 `/api` 前缀。
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## 开发
 
 ```sh
 pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+开发服务器会把 `/api` 代理到 `http://localhost:3000`。如需指向其他地址，设置 `VITE_API_BASE_URL`。
+
+## 构建与检查
 
 ```sh
+pnpm type-check
 pnpm build
 ```
+
+## 目录
+
+```text
+src/
+  api/         接口定义与 DTO 类型
+  components/  布局、反馈组件
+  enums/       角色、状态字符串枚举
+  router/      路由、meta 与守卫
+  stores/      Pinia 状态
+  utils/       请求、加密、媒体地址、格式化
+  view/        页面
+docs-backend/  后端文档
+```
+
+## 页面
+
+- `/login`、`/register`：登录、注册（密码使用 RSA-OAEP 加密后提交）
+- `/home/gallery`：图库（虚拟滚动）
+- `/home/albums`：图集列表
+- `/profile/me`：个人资料与头像
+- `/profile/avatar`：头像投稿；审核员可处理待审头像
+- `/profile/password`：修改密码（先验证当前密码换取 reauth token）
+- `/profile/delete`：删除账号
+- `/profile/images/{approved,pending,rejected}`：我的投稿
