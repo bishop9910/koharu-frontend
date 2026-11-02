@@ -36,13 +36,14 @@ docs-backend/  后端文档
 
 ## 页面
 
-- `/home/gallery`、`/home/albums`：图库与图集，游客可直接浏览
+- `/home/gallery`、`/home/albums`：图库与图集，游客可直接浏览；`/home/albums/:id` 查看图集详情
 - `/login`、`/register`：登录、注册（密码使用 RSA-OAEP 加密后提交）
-- `/profile/me`：个人资料、头像与图片上传（上传入口只放在个人中心）
+- `/profile/me`：个人资料与图片上传（支持单张/多张，上传入口只放在个人中心）
 - `/profile/avatar`：头像投稿；审核员可处理待审头像
 - `/profile/password`：修改密码（先验证当前密码换取 reauth token）
 - `/profile/delete`：删除账号
-- `/profile/images/{approved,pending,rejected}`：我的投稿
+- `/profile/submissions`：已通过投稿，按“已归档图集 / 未归档图片”分组
+- `/profile/images/{pending,rejected}`：待审核、未通过投稿
 
 未登录用户可以浏览图库、图集和公开资料；进入个人中心时才要求登录。
 

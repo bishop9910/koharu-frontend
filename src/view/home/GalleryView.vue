@@ -5,7 +5,6 @@ import { getImages, signImageDownload } from '@/api/image'
 import { getErrorMessage } from '@/utils/format'
 import { imageThumbnailUrl } from '@/utils/media'
 import type { ImageListItem } from '@/api/types'
-import FeibiQiubi from '@/components/feedback/FeibiQiubi.vue'
 import PhoebeLoader from '@/components/feedback/PhoebeLoader.vue'
 
 const view = ref<HTMLDivElement>()
@@ -187,11 +186,7 @@ onBeforeUnmount(() => {
             <PhoebeLoader :size="126" />
           </template>
           <template #error>
-            <n-spin :rotate="false" :size="126">
-              <template #icon>
-                <FeibiQiubi />
-              </template>
-            </n-spin>
+            <PhoebeLoader :size="96" still />
           </template>
         </n-image>
       </n-image-group>

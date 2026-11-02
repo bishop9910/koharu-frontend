@@ -38,6 +38,12 @@ const router = createRouter({
           meta: { title: '图集' }
         },
         {
+          path: 'albums/:id',
+          name: 'album-detail',
+          component: () => import('@/view/home/AlbumDetailView.vue'),
+          meta: { title: '图集详情' }
+        },
+        {
           path: 'image',
           redirect: '/home/gallery'
         },
@@ -78,10 +84,14 @@ const router = createRouter({
           meta: { title: '我的头像' }
         },
         {
+          path: 'submissions',
+          name: 'my-submissions',
+          component: () => import('@/view/profile/images/MySubmissionsView.vue'),
+          meta: { title: '我的投稿' }
+        },
+        {
           path: 'images/approved',
-          name: 'my-images-approved',
-          component: () => import('@/view/profile/images/ApprovedImagesView.vue'),
-          meta: { title: '已通过投稿' }
+          redirect: '/profile/submissions'
         },
         {
           path: 'images/pending',
@@ -101,7 +111,7 @@ const router = createRouter({
         },
         {
           path: 'approved',
-          redirect: '/profile/images/approved'
+          redirect: '/profile/submissions'
         },
         {
           path: 'pending',

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useMessage } from 'naive-ui'
+import phoebe from '@/assets/phoebe.png'
 import { getAlbums } from '@/api/albums'
 import { getErrorMessage } from '@/utils/format'
 import type { AlbumSummary } from '@/api/types'
@@ -32,11 +33,12 @@ onMounted(() => {
       <div v-for="index in 8" :key="index" class="h-44 animate-pulse rounded-xl border bg-white" />
     </template>
 
-    <div
+    <RouterLink
       v-for="album in albums"
       v-else
       :key="album.id"
-      class="rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md"
+      :to="{ name: 'album-detail', params: { id: album.id } }"
+      class="block rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md"
     >
       <div class="mb-4 grid h-28 place-items-center rounded-lg bg-gray-100 text-3xl">📁</div>
       <div class="truncate font-medium">{{ album.title }}</div>
@@ -47,13 +49,19 @@ onMounted(() => {
         <span>{{ album.owner?.username ?? '已注销用户' }}</span>
         <span>{{ album.imageCount }} 张</span>
       </div>
-    </div>
+    </RouterLink>
 
-    <div
+    <n-empty
       v-if="!loading && albums.length === 0"
-      class="col-span-full rounded-xl border border-dashed bg-white py-16 text-center text-sm text-gray-500"
+      description="暂无图集"
+      class="col-span-full py-16"
     >
-      暂无图集
-    </div>
+      <template #icon>
+        <img :src="phoebe" alt="" class="size-[72px] object-contain" />
+      </template>
+      <template #extra>
+        <n-button text type="primary" @click="loadAlbums">刷新看看</n-button>
+      </template>
+    </n-empty>
   </div>
 </template>

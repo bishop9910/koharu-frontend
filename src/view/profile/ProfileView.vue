@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDialog, useMessage } from 'naive-ui'
-import type { UploadCustomRequestOptions } from 'naive-ui/es/upload'
+import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui/es/upload'
 import { getCurrentUser, updateUser } from '@/api/users'
 import { deleteAvatar, uploadAvatar } from '@/api/avatars'
 import { uploadImage } from '@/api/image'
@@ -21,6 +21,7 @@ const loading = ref(false)
 const saving = ref(false)
 const avatarBusy = ref(false)
 const uploading = ref(false)
+const uploadFiles = ref<UploadFileInfo[]>([])
 const avatarFailed = ref(false)
 const avatarVersion = ref(0)
 const profile = ref<User | null>(null)
@@ -137,27 +138,50 @@ function handleRemoveAvatar() {
   })
 }
 
-async function handleUploadImage(options: UploadCustomRequestOptions) {
-  const { file, onFinish, onError } = options
-  if (!file.file) {
-    onError?.()
+async function handleUploadImages() {
+  const files = uploadFiles.value
+    .map((item) => item.file)
+    .filter((file): file is File => file instanceof File)
+
+  if (!files.length) {
+    message.warning('请先选择图片')
     return
   }
 
   uploading.value = true
-  try {
+  let success = 0
+  let failed = 0
+  let lastError: unknown
+
+  for (const file of files) {
     const formData = new FormData()
-    formData.append('file', file.file as File)
-    await uploadImage(formData)
-    message.success('上传成功，等待审核')
-    onFinish?.()
-    router.push({ name: 'my-images-pending' })
-  } catch (error) {
-    message.error(getErrorMessage(error, '图片上传失败'))
-    onError?.()
-  } finally {
-    uploading.value = false
+    formData.append('file', file)
+    try {
+      await uploadImage(formData)
+      success++
+    } catch (error) {
+      failed++
+      lastError = error
+    }
   }
+
+  uploading.value = false
+  uploadFiles.value = []
+
+  if (success > 0) {
+    message.success(
+      failed > 0 ? `成功上传 ${success} 张，${failed} 张失败` : `已上传 ${success} 张，等待审核`
+    )
+    router.push({ name: 'my-images-pending' })
+    return
+  }
+
+  message.error(getErrorMessage(lastError, '图片上传失败'))
+}
+
+function clearUploadFiles() {
+  if (uploading.value) return
+  uploadFiles.value = []
 }
 
 onMounted(() => {
@@ -252,19 +276,49 @@ onMounted(() => {
       </section>
 
       <section class="mt-8 border-t pt-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-4">
           <div>
             <h3 class="text-base font-semibold">上传图片</h3>
-            <p class="mt-1 text-sm text-gray-500">上传后进入待审核列表，审核通过后展示在图库中。</p>
+            <p class="mt-1 text-sm text-gray-500">
+              支持单张或多张上传，提交后进入待审核列表。
+            </p>
           </div>
-          <n-upload
-            accept="image/*"
-            :show-file-list="false"
-            :custom-request="handleUploadImage"
-            :disabled="uploading"
-          >
-            <n-button type="primary" :loading="uploading">选择图片</n-button>
-          </n-upload>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <n-upload
+              v-model:file-list="uploadFiles"
+              multiple
+              accept="image/*"
+              :default-upload="false"
+              :show-file-list="false"
+              :max="20"
+              :disabled="uploading"
+            >
+              <n-button :disabled="uploading">选择图片</n-button>
+            </n-upload>
+
+            <n-button
+              type="primary"
+              :loading="uploading"
+              :disabled="uploadFiles.length === 0"
+              @click="handleUploadImages"
+            >
+              {{ uploadFiles.length ? `上传 ${uploadFiles.length} 张` : '上传' }}
+            </n-button>
+
+            <n-button
+              v-if="uploadFiles.length"
+              quaternary
+              :disabled="uploading"
+              @click="clearUploadFiles"
+            >
+              清空
+            </n-button>
+          </div>
+
+          <p v-if="uploadFiles.length" class="text-xs text-gray-400">
+            已选择 {{ uploadFiles.length }} 张图片
+          </p>
         </div>
       </section>
 

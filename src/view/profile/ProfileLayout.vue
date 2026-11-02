@@ -14,7 +14,7 @@ const menuOptions: MenuOption[] = [
     label: '我的投稿',
     key: 'my-images',
     children: [
-      { label: '已通过', key: 'my-images-approved' },
+      { label: '已通过投稿', key: 'my-submissions' },
       { label: '待审核', key: 'my-images-pending' },
       { label: '未通过', key: 'my-images-rejected' }
     ]

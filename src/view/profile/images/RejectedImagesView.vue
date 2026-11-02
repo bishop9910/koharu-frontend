@@ -12,8 +12,8 @@ import type { MyImageListItem } from '@/api/types'
 import { ImageStatus } from '@/enums/status'
 import { imageThumbnailUrl, withAccessToken } from '@/utils/media'
 import { getErrorMessage } from '@/utils/format'
-import FeibiQiubi from '@/components/feedback/FeibiQiubi.vue'
 import PhoebeLoader from '@/components/feedback/PhoebeLoader.vue'
+import phoebe from '@/assets/phoebe.png'
 import EditSvg from '@/icon/Edit.svg?raw'
 import DeleteSvg from '@/icon/Delete.svg?raw'
 
@@ -31,6 +31,7 @@ const pad = 16
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 let resizeObserver: ResizeObserver | null = null
 const photos = ref<MyImageListItem[]>([])
+const loading = ref(true)
 const downloadLoad = ref(false)
 const deleteLoad = ref(false)
 
@@ -49,6 +50,8 @@ async function getList() {
     }
   } catch (error) {
     message.error(getErrorMessage(error, '加载投稿失败'))
+  } finally {
+    loading.value = false
   }
 }
 
@@ -288,17 +291,29 @@ onBeforeUnmount(() => {
                 <PhoebeLoader :size="126" />
               </template>
               <template #error>
-                <n-spin :rotate="false" :size="126">
-                  <template #icon>
-                    <FeibiQiubi />
-                  </template>
-                </n-spin>
+                <PhoebeLoader :size="96" still />
               </template>
             </n-image>
           </template>
           {{ item.rejectReason || '未填写拒绝原因' }}
         </n-tooltip>
       </n-image-group>
+    </div>
+
+    <div
+      v-if="!loading && photos.length === 0"
+      class="absolute inset-0 z-10 flex items-center justify-center bg-white"
+    >
+      <n-empty description="暂无未通过投稿" class="py-10">
+        <template #icon>
+          <img :src="phoebe" alt="" class="size-[72px] object-contain" />
+        </template>
+        <template #extra>
+          <RouterLink :to="{ name: 'profile' }">
+            <n-button text type="primary">去上传图片</n-button>
+          </RouterLink>
+        </template>
+      </n-empty>
     </div>
   </div>
 </template>

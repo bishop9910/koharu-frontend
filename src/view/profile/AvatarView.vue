@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useMessage } from 'naive-ui'
+import phoebe from '@/assets/phoebe.png'
 import type { UploadCustomRequestOptions } from 'naive-ui/es/upload'
 import { deleteAvatar, getPendingAvatars, reviewAvatar, uploadAvatar } from '@/api/avatars'
 import type { PendingAvatar } from '@/api/types'
@@ -198,7 +199,11 @@ onMounted(() => {
       </div>
 
       <n-spin :show="pendingLoading">
-        <n-empty v-if="!pendingList.length" description="暂无待审头像" class="py-10" />
+        <n-empty v-if="!pendingList.length" description="暂无待审头像" class="py-10">
+          <template #icon>
+            <img :src="phoebe" alt="" class="size-16 object-contain" />
+          </template>
+        </n-empty>
 
         <ul v-else class="divide-y rounded-xl border">
           <li

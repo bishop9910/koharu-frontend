@@ -12,7 +12,9 @@ const menuOptions: MenuOption[] = [
   { label: '图集', key: 'albums' }
 ]
 
-const activeKey = computed(() => String(route.name ?? 'gallery'))
+const activeKey = computed(() =>
+  route.name === 'album-detail' ? 'albums' : String(route.name ?? 'gallery')
+)
 const pageTitle = computed(() => String(route.meta.title ?? '图库'))
 
 function handleUpdate(key: string) {
