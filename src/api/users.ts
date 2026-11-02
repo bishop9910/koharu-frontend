@@ -1,9 +1,9 @@
 import http from "@/utils/request";
-import type { 
+import type {
   NewUserResponse,
-  NewUserRequest, 
-  ListUserRequest, 
-  ListUserResponse, 
+  NewUserRequest,
+  ListUserRequest,
+  ListUserResponse,
   GetSelfInfoResponse,
   ChangePasswordRequest,
   ChangePasswordResponse,
@@ -17,16 +17,16 @@ import type {
   DeleteUserResponse,
   UpdateUserRoleRequest,
   UpdateUserRoleResponse
- } from "./types";
+} from "./types";
 
-export function newUser(newUserRquest: NewUserRequest){
+export function newUser(newUserRquest: NewUserRequest) {
   return http.post<NewUserResponse>(
     "/users",
     newUserRquest,
   )
 }
 
-export function listUser(listUserRequest: ListUserRequest){
+export function listUser(listUserRequest: ListUserRequest) {
   return http.get<ListUserResponse>(
     "/users",
     {
@@ -35,45 +35,51 @@ export function listUser(listUserRequest: ListUserRequest){
   )
 }
 
-export function getSelfInfo(){
+export function getSelfInfo() {
   return http.get<GetSelfInfoResponse>(
     "/users/me"
   )
 }
 
-export function changePassword(changePasswordRequest: ChangePasswordRequest){
+export function changePassword(changePasswordRequest: ChangePasswordRequest, reauthToken: string) {
   return http.patch<ChangePasswordResponse>(
     "/users/me/password",
-    changePasswordRequest
+    changePasswordRequest,
+    {
+      headers: {
+        'X-Reauth-Token': reauthToken
+      },
+      skipAuthRefresh: true
+    }
   )
 }
 
-export function getUserPublicInfo(getUserPublicInfoRequest: GetUserPublicInfoRequest){
+export function getUserPublicInfo(getUserPublicInfoRequest: GetUserPublicInfoRequest) {
   return http.get<GetUserPublicInfoResponse>(
     `/users/${getUserPublicInfoRequest.id}/public`
   )
 }
 
-export function getUserInfo(getUserInfoRequest: GetUserInfoRequest){
+export function getUserInfo(getUserInfoRequest: GetUserInfoRequest) {
   return http.get<GetUserInfoResponse>(
     `/users/${getUserInfoRequest.id}`
   )
 }
 
-export function updateUser(userId: string, updateUserRequest: UpdateUserRequest){
+export function updateUser(userId: string, updateUserRequest: UpdateUserRequest) {
   return http.patch<UpdateUserResponse>(
     `/users/${userId}`,
     updateUserRequest
   )
 }
 
-export function deleteUser(deleteUserRequest: DeleteUserRequest){
+export function deleteUser(deleteUserRequest: DeleteUserRequest) {
   return http.delete<DeleteUserResponse>(
     `/users/${deleteUserRequest.id}`
   )
 }
 
-export function updateUserRole(userId: string, updateUserRoleRequest: UpdateUserRoleRequest){
+export function updateUserRole(userId: string, updateUserRoleRequest: UpdateUserRoleRequest) {
   return http.patch<UpdateUserRoleResponse>(
     `/users/${userId}/role`,
     updateUserRoleRequest
