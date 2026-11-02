@@ -148,7 +148,7 @@ export interface PublicKeyResponse {
 
 export interface verifyPasswordRequest {
   password: string,
-  encrypt: boolean
+  encrypted: boolean
 }
 
 export interface verifyPasswordResponse {

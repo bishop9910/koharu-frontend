@@ -19,6 +19,7 @@ const newPassword = ref('')
 
 const loading = ref(false)
 function passwordValid (passwordVal:string){
+  console.log(passwordRule.test(passwordVal), "@@@@", passwordVal)
   return passwordRule.test(passwordVal);
 }
 const encryptPassword = async (form:any, oldPassword: string, newPassword: string) => {
@@ -41,6 +42,7 @@ const encryptPassword = async (form:any, oldPassword: string, newPassword: strin
 async function handleSubmit(){
   if(loading.value) return
   loading.value = true;
+
   if(!passwordValid(newPassword.value)){
     loading.value = false;
     message.warning('6到18位，必须同时包含字母和数字');
@@ -54,7 +56,7 @@ async function handleSubmit(){
   await encryptPassword(formEncrypt, oldPassword.value, newPassword.value);
   const verifyPasswordRequest = {
     password: formEncrypt.value.oldPassword,
-    encrypt: true
+    encrypted: true
   }
   const changePasswordRequest = {
     newPassword: formEncrypt.value.newPassword,
@@ -93,7 +95,7 @@ async function handleSubmit(){
           v-model:value="oldPassword"
           type="password"
           show-password-on="click"
-          placeholder="请先输入久密码"
+          placeholder="请先输入旧密码"
           size="large"
           class="w-full"
         >
