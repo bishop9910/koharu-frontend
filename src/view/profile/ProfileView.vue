@@ -272,14 +272,6 @@ onMounted(() => {
         <h3 class="mb-3 text-base font-semibold">账号信息</h3>
         <dl class="grid gap-3 text-sm sm:grid-cols-2">
           <div class="flex justify-between gap-4 rounded-lg bg-gray-50 px-4 py-3">
-            <dt class="text-gray-500">用户 ID</dt>
-            <dd class="truncate font-mono text-xs">{{ profile.id }}</dd>
-          </div>
-          <div class="flex justify-between gap-4 rounded-lg bg-gray-50 px-4 py-3">
-            <dt class="text-gray-500">邮箱状态</dt>
-            <dd>{{ profile.emailVerified ? '已验证' : '未验证' }}</dd>
-          </div>
-          <div class="flex justify-between gap-4 rounded-lg bg-gray-50 px-4 py-3">
             <dt class="text-gray-500">注册时间</dt>
             <dd>{{ formatDateTime(profile.createdAt) }}</dd>
           </div>
