@@ -1,7 +1,8 @@
 import http from '@/utils/request'
 import type {
-  Album,
+  AlbumDetail,
   AlbumImagesRequest,
+  AlbumSummary,
   CreateAlbumRequest,
   MessageResponse,
   Paginated,
@@ -11,23 +12,23 @@ import type {
 } from './types'
 
 export function createAlbum(payload: CreateAlbumRequest) {
-  return http.post<Album>('/albums', payload)
+  return http.post<AlbumDetail>('/albums', payload)
 }
 
-export function getAlbums(query: PaginationQuery) {
-  return http.get<Paginated<Album>>('/albums', { params: query })
+export function getAlbums(query: PaginationQuery = {}) {
+  return http.get<Paginated<AlbumSummary>>('/albums', { params: query })
 }
 
-export function searchAlbums(query: SearchAlbumsQuery) {
-  return http.get<Paginated<Album>>('/albums/search', { params: query })
+export function searchAlbums(query: SearchAlbumsQuery = {}) {
+  return http.get<Paginated<AlbumSummary>>('/albums/search', { params: query })
 }
 
 export function getAlbum(id: string) {
-  return http.get<Album>(`/albums/${id}`)
+  return http.get<AlbumDetail>(`/albums/${id}`)
 }
 
 export function updateAlbum(id: string, payload: UpdateAlbumRequest) {
-  return http.patch<Album>(`/albums/${id}`, payload)
+  return http.patch<AlbumDetail>(`/albums/${id}`, payload)
 }
 
 export function deleteAlbum(id: string) {
@@ -35,13 +36,13 @@ export function deleteAlbum(id: string) {
 }
 
 export function unlockAlbum(id: string) {
-  return http.post<Album>(`/albums/${id}/unlock`)
+  return http.post<AlbumDetail>(`/albums/${id}/unlock`)
 }
 
 export function addAlbumImages(id: string, payload: AlbumImagesRequest) {
-  return http.post<Album>(`/albums/${id}/images`, payload)
+  return http.post<AlbumDetail>(`/albums/${id}/images`, payload)
 }
 
 export function removeAlbumImages(id: string, payload: AlbumImagesRequest) {
-  return http.delete<Album>(`/albums/${id}/images`, { data: payload })
+  return http.delete<AlbumDetail>(`/albums/${id}/images`, { data: payload })
 }

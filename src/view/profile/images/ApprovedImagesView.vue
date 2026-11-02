@@ -80,11 +80,11 @@ const range = computed(() => {
 
 const visibleItems = computed(() => {
   const { start, end } = range.value
-  const items: { id: string; thumbnailPath: string }[] = []
+  const items: { id: string }[] = []
   for (let i = start; i < end; i++) {
     const photo = photos.value[i]
     if (!photo) break
-    items.push({ id: photo.id, thumbnailPath: photo.thumbnailPath })
+    items.push({ id: photo.id })
   }
   return items
 })

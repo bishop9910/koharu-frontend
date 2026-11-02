@@ -24,7 +24,6 @@ const router = createRouter({
       path: '/home',
       component: () => import('@/view/home/HomeView.vue'),
       redirect: '/home/gallery',
-      meta: { requiresAuth: true },
       children: [
         {
           path: 'gallery',

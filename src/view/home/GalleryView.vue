@@ -4,7 +4,7 @@ import { useMessage, type ImageRenderToolbarProps } from 'naive-ui'
 import { getImages, signImageDownload } from '@/api/image'
 import { getErrorMessage } from '@/utils/format'
 import { imageThumbnailUrl } from '@/utils/media'
-import type { ImageItem } from '@/api/types'
+import type { ImageListItem } from '@/api/types'
 import FeibiQiubi from '@/components/feedback/FeibiQiubi.vue'
 import PhoebeLoader from '@/components/feedback/PhoebeLoader.vue'
 
@@ -21,7 +21,7 @@ const pad = 16
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 let resizeObserver: ResizeObserver | null = null
-const photos = ref<ImageItem[]>([])
+const photos = ref<ImageListItem[]>([])
 
 let page = 1
 const limit = 90
@@ -68,11 +68,11 @@ const range = computed(() => {
 
 const visibleItems = computed(() => {
   const { start, end } = range.value
-  const items: { id: string; thumbnailPath: string }[] = []
+  const items: { id: string }[] = []
   for (let i = start; i < end; i++) {
     const photo = photos.value[i]
     if (!photo) break
-    items.push({ id: photo.id, thumbnailPath: photo.thumbnailPath })
+    items.push({ id: photo.id })
   }
   return items
 })

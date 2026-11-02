@@ -10,8 +10,8 @@ export interface MessageResponse {
 }
 
 export interface PaginationQuery {
-  page: number
-  limit: number
+  page?: number
+  limit?: number
 }
 
 export interface Paginated<T> {
@@ -38,6 +38,12 @@ export interface UserAvatar {
   createdAt: string
 }
 
+export interface AvatarSummary {
+  id: string
+  userId: string
+  createdAt: string
+}
+
 /** 登录接口返回的用户信息 */
 export interface AuthUser {
   id: string
@@ -52,7 +58,7 @@ export interface UserPublicInfo {
   bio: string | null
   role: Role
   avatar: Pick<UserAvatar, 'path'> | null
-  avatarUrl?: string | null
+  avatarUrl: string | null
 }
 
 /** GET /users/me、GET /users/{id} */
@@ -66,19 +72,20 @@ export interface User extends Timestamps {
   reviewExempt: boolean
   avatar: UserAvatar | null
   deletedAt: string | null
+  updatedAt: string
 }
 
 /** GET /users（MODERATOR+） */
-export interface UserListItem extends Timestamps {
+export interface UserListItem {
   id: string
   username: string
   email: string
   role: Role
   bio: string | null
   emailVerified: boolean
-  reviewExempt: boolean
   avatar: UserAvatar | null
-  avatarUrl?: string | null
+  avatarUrl: string | null
+  createdAt: string
 }
 
 export type EditableUserFields = Pick<User, 'username' | 'email' | 'bio'>
@@ -98,6 +105,15 @@ export interface LoginResponse {
   refreshToken: string
   expiresIn: number
   user: AuthUser
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string
+  expiresIn: number
 }
 
 export interface PublicKeyResponse {
@@ -146,28 +162,45 @@ export interface ChangePasswordRequest {
  * 图片
  * ============================================================ */
 
-export interface ImageItem extends Timestamps {
+export interface ImageListItem {
   id: string
   filename: string
-  thumbnailPath: string
+  thumbnailPath: string | null
   thumbnailUrl: string
   mimeType: string
   size: number
-  width: number
-  height: number
-  userId: string
+  width: number | null
+  height: number | null
+  userId: string | null
   status: ImageStatus
-  rejectReason: string | null
-  editCount: number
-  md5: string
+  createdAt: string
 }
 
-export interface MyImageListItem extends ImageItem {
+export interface MyImageListItem extends ImageListItem {
+  rejectReason: string | null
   archived: boolean
 }
 
-export interface PendingImage extends ImageItem {
-  username: string
+export interface PendingImage extends ImageListItem {
+  username: string | null
+}
+
+export interface ImageResponse {
+  id: string
+  filename: string
+  thumbnailPath?: string | null
+  thumbnailUrl: string
+  mimeType: string
+  size: number
+  md5: string
+  width: number | null
+  height: number | null
+  userId: string | null
+  status: ImageStatus
+  rejectReason?: string | null
+  editCount: number
+  createdAt: string
+  updatedAt: string
 }
 
 export interface ImageListQuery extends PaginationQuery {
@@ -179,11 +212,11 @@ export interface MyImageListQuery extends PaginationQuery {
 }
 
 export interface UploadImageResponse extends MessageResponse {
-  image: ImageItem
+  image: ImageResponse
 }
 
 export interface ModifyImageResponse extends MessageResponse {
-  image: ImageItem
+  image: ImageResponse
 }
 
 export interface ReviewImageRequest {
@@ -199,6 +232,7 @@ export interface DownloadLinkResponse {
 export interface DownloadImageQuery {
   signature: string
   expires: string
+  access_token?: string
 }
 
 /* ============================================================
@@ -208,7 +242,7 @@ export interface DownloadImageQuery {
 export interface PendingAvatar {
   submissionId: string
   userId: string
-  username: string
+  username: string | null
   status: AvatarStatus
   imageUrl: string
   createdAt: string
@@ -231,13 +265,73 @@ export interface ReviewAvatarRequest {
 }
 
 export interface ReviewAvatarResponse extends MessageResponse {
-  status: AvatarStatus
-  avatar: UserAvatar | null
+  status: AvatarStatus.APPROVED | AvatarStatus.REJECTED
+  avatar: AvatarSummary | null
 }
 
 /* ============================================================
  * 图集与标签
  * ============================================================ */
+
+export type AlbumVisibility = 'public' | 'private'
+
+export interface AlbumOwner {
+  id: string
+  username: string
+}
+
+export interface AlbumTag {
+  id: string
+  name: string
+}
+
+export interface AlbumImage {
+  id: string
+  filename: string
+  thumbnailPath: string | null
+  thumbnailUrl: string
+  status: ImageStatus
+}
+
+export interface AlbumSummary extends Timestamps {
+  id: string
+  title: string
+  description: string | null
+  visibility: AlbumVisibility
+  locked: boolean
+  ownerId: string | null
+  owner: AlbumOwner | null
+  tags: AlbumTag[]
+  imageCount: number
+  updatedAt: string
+}
+
+export interface AlbumDetail extends Omit<AlbumSummary, 'imageCount'> {
+  images: AlbumImage[]
+}
+
+export interface CreateAlbumRequest {
+  title: string
+  description?: string
+  visibility?: AlbumVisibility
+  tags?: string[]
+}
+
+export interface UpdateAlbumRequest {
+  title?: string
+  description?: string
+  visibility?: AlbumVisibility
+  tags?: string[]
+}
+
+export interface SearchAlbumsQuery extends PaginationQuery {
+  q?: string
+  tags?: string[]
+}
+
+export interface AlbumImagesRequest {
+  imageIds: string[]
+}
 
 export interface Tag {
   id: string
@@ -245,38 +339,79 @@ export interface Tag {
   createdAt: string
 }
 
-export interface Album extends Timestamps {
+/* ============================================================
+ * 图库密钥
+ * ============================================================ */
+
+export type KeyRotationStatus = 'idle' | 'running' | 'failed'
+
+export interface LibraryRotation {
+  status: KeyRotationStatus
+  total: number
+  done: number
+  error: string | null
+}
+
+export interface LibraryStatus {
+  bootstrapped: boolean
+  unlocked: boolean
+  activeVersion: number
+  rotation: LibraryRotation
+}
+
+export interface ChangeLibraryPasswordRequest {
+  oldPassword: string
+  newPassword: string
+}
+
+export interface ChangeLibraryPasswordResponse extends MessageResponse {
+  activeVersion: number
+  rotationTotal: number
+}
+
+export interface UnlockLibraryRequest {
+  password: string
+}
+
+/* ============================================================
+ * 自审赦免
+ * ============================================================ */
+
+export interface ReviewExemptionItem {
+  userId: string
+  username: string
+  role: Role
+}
+
+export interface ReviewExemptionListResponse {
+  data: ReviewExemptionItem[]
+  total: number
+}
+
+/* ============================================================
+ * 审计日志
+ * ============================================================ */
+
+export interface AuditLog {
   id: string
-  title: string
-  description: string
-  visibility: string
-  locked: boolean
-  ownerId: string
-  owner: Pick<User, 'id' | 'username'>
-  tags: Tag[]
-  images: ImageItem[]
-  imageCount?: number
+  actorId: string | null
+  actorUsername: string | null
+  actorRole: Role | null
+  action: string
+  method: string | null
+  path: string | null
+  statusCode: number | null
+  ip: string | null
+  userAgent: string | null
+  durationMs: number | null
+  detail: Record<string, unknown> | null
+  success: boolean
+  createdAt: string
 }
 
-export interface CreateAlbumRequest {
-  title: string
-  description?: string
-  visibility: string
-  tags: string[]
-}
-
-export interface UpdateAlbumRequest {
-  title?: string
-  description?: string
-  visibility?: string
-  tags?: string[]
-}
-
-export interface SearchAlbumsQuery extends PaginationQuery {
-  q: string
-  tags?: string[]
-}
-
-export interface AlbumImagesRequest {
-  imageIds: string[]
+export interface AuditLogQuery extends PaginationQuery {
+  actorId?: string
+  action?: string
+  from?: string
+  to?: string
 }

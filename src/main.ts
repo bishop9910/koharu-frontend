@@ -15,6 +15,7 @@ import {
   NMenu,
   NMessageProvider,
   NModal,
+  NPopover,
   NSkeleton,
   NSpin,
   NTag,
@@ -47,6 +48,7 @@ const naiveComponents = {
   NMenu,
   NMessageProvider,
   NModal,
+  NPopover,
   NSkeleton,
   NSpin,
   NTag,
@@ -67,6 +69,8 @@ setTokenProvider(piniaTokenProvider)
 
 setAuthFailedHandler(() => {
   useUserStore().logout()
+
+  if (!router.currentRoute.value.meta.requiresAuth) return
 
   const redirect = router.currentRoute.value.fullPath
   if (router.currentRoute.value.name !== 'login') {

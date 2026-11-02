@@ -3,11 +3,11 @@ import { onMounted, ref } from 'vue'
 import { useMessage } from 'naive-ui'
 import { getAlbums } from '@/api/albums'
 import { getErrorMessage } from '@/utils/format'
-import type { Album } from '@/api/types'
+import type { AlbumSummary } from '@/api/types'
 
 const message = useMessage()
 const loading = ref(false)
-const albums = ref<Album[]>([])
+const albums = ref<AlbumSummary[]>([])
 
 async function loadAlbums() {
   loading.value = true
@@ -44,8 +44,8 @@ onMounted(() => {
         {{ album.description || '暂无简介' }}
       </div>
       <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
-        <span>{{ album.owner.username }}</span>
-        <span>{{ album.imageCount ?? album.images.length }} 张</span>
+        <span>{{ album.owner?.username ?? '已注销用户' }}</span>
+        <span>{{ album.imageCount }} 张</span>
       </div>
     </div>
 

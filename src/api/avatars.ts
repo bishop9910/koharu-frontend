@@ -9,7 +9,7 @@ import type {
   UploadAvatarResponse
 } from './types'
 
-export function getPendingAvatars(query: PaginationQuery) {
+export function getPendingAvatars(query: PaginationQuery = {}) {
   return http.get<Paginated<PendingAvatar>>('/avatars/pending', { params: query })
 }
 
@@ -23,8 +23,15 @@ export function reviewAvatar(userId: string, payload: ReviewAvatarRequest) {
   return http.post<ReviewAvatarResponse>(`/avatars/${userId}/review`, payload)
 }
 
-export function getPendingAvatarStream(userId: string) {
-  return http.get<Blob>(`/avatars/${userId}/pending/image`, { responseType: 'blob' })
+export function getAvatarStream(userId: string) {
+  return http.get<Blob>(`/avatars/${userId}/image`, { responseType: 'blob' })
+}
+
+export function getPendingAvatarStream(userId: string, accessToken?: string) {
+  return http.get<Blob>(`/avatars/${userId}/pending/image`, {
+    responseType: 'blob',
+    params: accessToken ? { access_token: accessToken } : undefined
+  })
 }
 
 export function deleteAvatar(userId: string) {

@@ -16,7 +16,7 @@ export function createUser(payload: CreateUserRequest) {
   return http.post<User>('/users', payload)
 }
 
-export function listUsers(query: PaginationQuery) {
+export function listUsers(query: PaginationQuery = {}) {
   return http.get<Paginated<UserListItem>>('/users', { params: query })
 }
 

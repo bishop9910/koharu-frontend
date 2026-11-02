@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDialog, useMessage } from 'naive-ui'
 import type { UploadCustomRequestOptions } from 'naive-ui/es/upload'
 import { getCurrentUser, updateUser } from '@/api/users'
 import { deleteAvatar, uploadAvatar } from '@/api/avatars'
+import { uploadImage } from '@/api/image'
 import { useUserStore } from '@/stores/user'
 import { avatarImageUrl, withAccessToken } from '@/utils/media'
 import { formatDateTime, getErrorMessage } from '@/utils/format'
@@ -12,11 +14,13 @@ import type { User } from '@/api/types'
 
 const message = useMessage()
 const dialog = useDialog()
+const router = useRouter()
 const userStore = useUserStore()
 
 const loading = ref(false)
 const saving = ref(false)
 const avatarBusy = ref(false)
+const uploading = ref(false)
 const avatarFailed = ref(false)
 const avatarVersion = ref(0)
 const profile = ref<User | null>(null)
@@ -133,6 +137,29 @@ function handleRemoveAvatar() {
   })
 }
 
+async function handleUploadImage(options: UploadCustomRequestOptions) {
+  const { file, onFinish, onError } = options
+  if (!file.file) {
+    onError?.()
+    return
+  }
+
+  uploading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file.file as File)
+    await uploadImage(formData)
+    message.success('上传成功，等待审核')
+    onFinish?.()
+    router.push({ name: 'my-images-pending' })
+  } catch (error) {
+    message.error(getErrorMessage(error, '图片上传失败'))
+    onError?.()
+  } finally {
+    uploading.value = false
+  }
+}
+
 onMounted(() => {
   void loadProfile()
 })
@@ -222,6 +249,23 @@ onMounted(() => {
             <n-button quaternary :disabled="!dirty" @click="profile && syncForm(profile)">重置</n-button>
           </div>
         </n-form>
+      </section>
+
+      <section class="mt-8 border-t pt-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="text-base font-semibold">上传图片</h3>
+            <p class="mt-1 text-sm text-gray-500">上传后进入待审核列表，审核通过后展示在图库中。</p>
+          </div>
+          <n-upload
+            accept="image/*"
+            :show-file-list="false"
+            :custom-request="handleUploadImage"
+            :disabled="uploading"
+          >
+            <n-button type="primary" :loading="uploading">选择图片</n-button>
+          </n-upload>
+        </div>
       </section>
 
       <section class="mt-8 border-t pt-6">
