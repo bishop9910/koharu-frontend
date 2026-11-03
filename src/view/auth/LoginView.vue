@@ -58,7 +58,7 @@ async function handleSubmit() {
     const target =
       typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
         ? redirect
-        : '/home/gallery'
+        : '/home/albums'
     await router.replace(target)
     message.success('登录成功')
   } catch (error) {

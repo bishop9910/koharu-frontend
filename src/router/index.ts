@@ -23,33 +23,47 @@ const router = createRouter({
     {
       path: '/home',
       component: () => import('@/view/home/HomeView.vue'),
-      redirect: '/home/gallery',
+      redirect: '/home/albums',
       children: [
-        {
-          path: 'gallery',
-          name: 'gallery',
-          component: () => import('@/view/home/GalleryView.vue'),
-          meta: { title: '图库' }
-        },
         {
           path: 'albums',
           name: 'albums',
           component: () => import('@/view/home/AlbumsView.vue'),
-          meta: { title: '图集' }
+          meta: { title: '图库' }
         },
         {
           path: 'albums/:id',
           name: 'album-detail',
           component: () => import('@/view/home/AlbumDetailView.vue'),
-          meta: { title: '图集详情' }
+          meta: { title: '图库详情' }
+        },
+        {
+          path: 'favorites',
+          name: 'favorites',
+          component: () => import('@/view/home/AlbumsView.vue'),
+          meta: { title: '我的收藏', requiresAuth: true }
+        },
+        {
+          path: 'liked',
+          name: 'liked',
+          component: () => import('@/view/home/AlbumsView.vue'),
+          meta: { title: '我点赞的', requiresAuth: true }
+        },
+        {
+          path: 'tags',
+          redirect: '/home/albums'
+        },
+        {
+          path: 'gallery',
+          redirect: '/home/albums'
         },
         {
           path: 'image',
-          redirect: '/home/gallery'
+          redirect: '/home/albums'
         },
         {
           path: 'a',
-          redirect: '/home/gallery'
+          redirect: '/home/albums'
         }
       ]
     },
@@ -64,6 +78,12 @@ const router = createRouter({
           name: 'profile',
           component: () => import('@/view/profile/ProfileView.vue'),
           meta: { title: '个人资料' }
+        },
+        {
+          path: 'studio',
+          name: 'studio',
+          component: () => import('@/view/profile/StudioView.vue'),
+          meta: { title: '创作中心' }
         },
         {
           path: 'password',

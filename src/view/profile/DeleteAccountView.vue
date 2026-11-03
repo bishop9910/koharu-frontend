@@ -41,7 +41,7 @@ async function handleDelete() {
 </script>
 
 <template>
-  <div class="max-w-2xl">
+  <div class="h-full max-w-2xl overflow-y-auto">
     <div class="mb-6">
       <h2 class="text-xl font-semibold text-red-600">删除账号</h2>
       <p class="mt-1 text-sm text-gray-500">此操作会停用账号并进入删除流程，请谨慎操作。</p>

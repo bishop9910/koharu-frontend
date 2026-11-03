@@ -36,17 +36,21 @@ function goProfile() {
   router.push({ name: 'profile' })
 }
 
+function goStudio() {
+  router.push({ name: 'studio' })
+}
+
 function logout() {
   userStore.logout()
   message.success('已退出登录')
-  router.replace({ name: 'gallery' })
+  router.replace({ name: 'albums' })
 }
 </script>
 
 <template>
   <header class="z-10 flex h-16 shrink-0 items-center border-b bg-white px-6">
     <div class="flex w-full items-center justify-between">
-      <RouterLink to="/home/gallery" class="flex items-center gap-2.5">
+      <RouterLink to="/home/albums" class="flex items-center gap-2.5">
         <span class="grid size-9 place-items-center rounded-lg bg-[#e0eff9] text-sm font-bold text-gray-800">
           K
         </span>
@@ -97,6 +101,12 @@ function logout() {
               @click="goProfile"
             >
               个人中心
+            </div>
+            <div
+              class="cursor-pointer px-4 py-2.5 text-sm hover:bg-gray-100"
+              @click="goStudio"
+            >
+              创作中心
             </div>
             <div
               class="cursor-pointer px-4 py-2.5 text-sm hover:bg-gray-100"

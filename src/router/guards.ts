@@ -15,7 +15,7 @@ export function setupRouterGuards(router: Router) {
     }
 
     if (to.meta.guestOnly && auth.isAuthenticated) {
-      return { name: 'gallery' }
+      return { name: 'albums' }
     }
   })
 

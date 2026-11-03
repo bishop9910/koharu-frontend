@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useDialog, useMessage } from 'naive-ui'
-import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui/es/upload'
+import type { UploadCustomRequestOptions } from 'naive-ui/es/upload'
 import { getCurrentUser, updateUser } from '@/api/users'
 import { deleteAvatar, uploadAvatar } from '@/api/avatars'
-import { uploadImage } from '@/api/image'
 import { useUserStore } from '@/stores/user'
 import { avatarImageUrl, withAccessToken } from '@/utils/media'
 import { formatDateTime, getErrorMessage } from '@/utils/format'
@@ -14,14 +12,11 @@ import type { User } from '@/api/types'
 
 const message = useMessage()
 const dialog = useDialog()
-const router = useRouter()
 const userStore = useUserStore()
 
 const loading = ref(false)
 const saving = ref(false)
 const avatarBusy = ref(false)
-const uploading = ref(false)
-const uploadFiles = ref<UploadFileInfo[]>([])
 const avatarFailed = ref(false)
 const avatarVersion = ref(0)
 const profile = ref<User | null>(null)
@@ -138,59 +133,13 @@ function handleRemoveAvatar() {
   })
 }
 
-async function handleUploadImages() {
-  const files = uploadFiles.value
-    .map((item) => item.file)
-    .filter((file): file is File => file instanceof File)
-
-  if (!files.length) {
-    message.warning('请先选择图片')
-    return
-  }
-
-  uploading.value = true
-  let success = 0
-  let failed = 0
-  let lastError: unknown
-
-  for (const file of files) {
-    const formData = new FormData()
-    formData.append('file', file)
-    try {
-      await uploadImage(formData)
-      success++
-    } catch (error) {
-      failed++
-      lastError = error
-    }
-  }
-
-  uploading.value = false
-  uploadFiles.value = []
-
-  if (success > 0) {
-    message.success(
-      failed > 0 ? `成功上传 ${success} 张，${failed} 张失败` : `已上传 ${success} 张，等待审核`
-    )
-    router.push({ name: 'my-images-pending' })
-    return
-  }
-
-  message.error(getErrorMessage(lastError, '图片上传失败'))
-}
-
-function clearUploadFiles() {
-  if (uploading.value) return
-  uploadFiles.value = []
-}
-
 onMounted(() => {
   void loadProfile()
 })
 </script>
 
 <template>
-  <div class="max-w-3xl">
+  <div class="h-full max-w-3xl overflow-y-auto">
     <div class="mb-6">
       <h2 class="text-xl font-semibold">个人资料</h2>
       <p class="mt-1 text-sm text-gray-500">管理头像、用户名、邮箱和自我介绍。</p>
@@ -273,53 +222,6 @@ onMounted(() => {
             <n-button quaternary :disabled="!dirty" @click="profile && syncForm(profile)">重置</n-button>
           </div>
         </n-form>
-      </section>
-
-      <section class="mt-8 border-t pt-6">
-        <div class="flex flex-col gap-4">
-          <div>
-            <h3 class="text-base font-semibold">上传图片</h3>
-            <p class="mt-1 text-sm text-gray-500">
-              支持单张或多张上传，提交后进入待审核列表。
-            </p>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <n-upload
-              v-model:file-list="uploadFiles"
-              multiple
-              accept="image/*"
-              :default-upload="false"
-              :show-file-list="false"
-              :max="20"
-              :disabled="uploading"
-            >
-              <n-button :disabled="uploading">选择图片</n-button>
-            </n-upload>
-
-            <n-button
-              type="primary"
-              :loading="uploading"
-              :disabled="uploadFiles.length === 0"
-              @click="handleUploadImages"
-            >
-              {{ uploadFiles.length ? `上传 ${uploadFiles.length} 张` : '上传' }}
-            </n-button>
-
-            <n-button
-              v-if="uploadFiles.length"
-              quaternary
-              :disabled="uploading"
-              @click="clearUploadFiles"
-            >
-              清空
-            </n-button>
-          </div>
-
-          <p v-if="uploadFiles.length" class="text-xs text-gray-400">
-            已选择 {{ uploadFiles.length }} 张图片
-          </p>
-        </div>
       </section>
 
       <section class="mt-8 border-t pt-6">

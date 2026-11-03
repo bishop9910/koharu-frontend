@@ -138,7 +138,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-4xl">
+  <div class="h-full max-w-4xl overflow-y-auto">
     <div class="mb-6">
       <h2 class="text-xl font-semibold">我的头像</h2>
       <p class="mt-1 text-sm text-gray-500">头像提交后需要审核，审核通过才会对外展示。</p>

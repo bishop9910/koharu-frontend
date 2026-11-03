@@ -8,12 +8,13 @@ const route = useRoute()
 const router = useRouter()
 
 const menuOptions: MenuOption[] = [
-  { label: '图库', key: 'gallery' },
-  { label: '图集', key: 'albums' }
+  { label: '图库', key: 'albums' },
+  { label: '我的收藏', key: 'favorites' },
+  { label: '我点赞的', key: 'liked' }
 ]
 
 const activeKey = computed(() =>
-  route.name === 'album-detail' ? 'albums' : String(route.name ?? 'gallery')
+  route.name === 'album-detail' ? 'albums' : String(route.name ?? 'albums')
 )
 const pageTitle = computed(() => String(route.meta.title ?? '图库'))
 

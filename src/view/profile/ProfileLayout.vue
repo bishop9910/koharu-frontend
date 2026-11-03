@@ -9,7 +9,7 @@ const router = useRouter()
 
 const menuOptions: MenuOption[] = [
   { label: '资料', key: 'profile' },
-  { label: '密码', key: 'password' },
+  { label: '创作中心', key: 'studio' },
   {
     label: '我的投稿',
     key: 'my-images',
@@ -20,6 +20,7 @@ const menuOptions: MenuOption[] = [
     ]
   },
   { label: '我的头像', key: 'avatar' },
+  { label: '密码', key: 'password' },
   { label: '删除账号', key: 'delete-account' }
 ]
 

@@ -309,7 +309,7 @@ onBeforeUnmount(() => {
           <img :src="phoebe" alt="" class="size-[72px] object-contain" />
         </template>
         <template #extra>
-          <RouterLink :to="{ name: 'profile' }">
+          <RouterLink :to="{ name: 'studio' }">
             <n-button text type="primary">去上传图片</n-button>
           </RouterLink>
         </template>

@@ -274,6 +274,8 @@ export interface ReviewAvatarResponse extends MessageResponse {
  * ============================================================ */
 
 export type AlbumVisibility = 'public' | 'private'
+export type AlbumReviewStatus = 'none' | 'pending' | 'approved' | 'rejected'
+export type AlbumReportStatus = 'pending' | 'verified' | 'dismissed' | 'resolved'
 
 export interface AlbumOwner {
   id: string
@@ -303,12 +305,104 @@ export interface AlbumSummary extends Timestamps {
   owner: AlbumOwner | null
   tags: AlbumTag[]
   imageCount: number
+  likeCount: number
+  favoriteCount: number
+  likedByMe: boolean
+  favoritedByMe: boolean
+  reviewStatus: AlbumReviewStatus
+  reviewEditUsed: boolean
+  reviewSubmittedAt: string | null
+  reviewRound: number
+  reviewedAt: string | null
+  reviewRejectReason: string | null
   updatedAt: string
 }
 
 export interface AlbumDetail extends Omit<AlbumSummary, 'imageCount'> {
   images: AlbumImage[]
 }
+
+export interface AlbumReaction {
+  albumId: string
+  likeCount: number
+  favoriteCount: number
+  likedByMe: boolean
+  favoritedByMe: boolean
+}
+
+export interface AlbumReportAlbum {
+  id: string
+  title: string
+  visibility: AlbumVisibility
+  reviewStatus: AlbumReviewStatus
+  ownerId: string | null
+  ownerUsername: string
+}
+
+export interface AlbumReportReporter {
+  id: string
+  username: string
+}
+
+export interface AlbumReportItem extends Timestamps {
+  id: string
+  albumId: string
+  album: AlbumReportAlbum
+  reporter: AlbumReportReporter | null
+  reason: string
+  detail: string | null
+  status: AlbumReportStatus
+  handledBy: string | null
+  handledAt: string | null
+  resolutionNote: string | null
+}
+
+export interface AlbumReviewReport {
+  id: string
+  reason: string
+  detail: string | null
+  status: AlbumReportStatus
+  reporter: AlbumReportReporter | null
+  createdAt: string
+}
+
+export interface AlbumReviewItem extends AlbumSummary {
+  pendingImageCount: number
+  reports: AlbumReviewReport[]
+}
+
+export interface CreateAlbumReportRequest {
+  reason: string
+  detail?: string
+}
+
+export interface HandleAlbumReportRequest {
+  note?: string
+}
+
+export interface AlbumReportQuery extends PaginationQuery {
+  status?: AlbumReportStatus
+}
+
+export interface ReviewAlbumRequest {
+  status: ReviewStatus
+  reason?: string
+}
+
+export interface ReviewAlbumResponse extends MessageResponse {
+  approvedImages: number
+  rejectedImages: number
+  album: AlbumDetail
+}
+
+export interface CreateAlbumReportResponse extends MessageResponse {
+  report: AlbumReportItem
+}
+
+export interface HandleAlbumReportResponse extends MessageResponse {
+  report: AlbumReportItem
+}
+
 
 export interface CreateAlbumRequest {
   title: string

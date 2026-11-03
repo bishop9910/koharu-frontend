@@ -62,7 +62,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="max-w-lg">
+  <div class="h-full max-w-lg overflow-y-auto">
     <div class="mb-6">
       <h2 class="text-xl font-semibold">修改密码</h2>
       <p class="mt-1 text-sm text-gray-500">

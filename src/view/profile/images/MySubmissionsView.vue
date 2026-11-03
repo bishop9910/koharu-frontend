@@ -181,7 +181,7 @@ onMounted(async () => {
           <img :src="phoebe" alt="" class="size-[72px] object-contain" />
         </template>
         <template #extra>
-          <n-button text type="primary" @click="router.push({ name: 'profile' })">
+          <n-button text type="primary" @click="router.push({ name: 'studio' })">
             去上传图片
           </n-button>
         </template>
